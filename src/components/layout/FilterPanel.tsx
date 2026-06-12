@@ -1,0 +1,233 @@
+"use client";
+
+import { useState } from "react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useFilters } from "@/hooks/useFilters";
+import { PanelLeftClose } from "lucide-react";
+import type { StainType, OrganType, CaseStatus } from "@/types/case";
+
+const STAINS: { value: StainType; label: string; color: string }[] = [
+  { value: "HE", label: "H&E", color: "bg-violet-400" },
+  { value: "HER2", label: "HER2", color: "bg-sky-400" },
+  { value: "ER", label: "ER", color: "bg-rose-400" },
+  { value: "PR", label: "PR", color: "bg-amber-400" },
+  { value: "KI67", label: "Ki-67", color: "bg-emerald-400" },
+];
+
+const ORGANS: { value: OrganType; label: string }[] = [
+  { value: "Stomach", label: "Stomach" },
+  { value: "Colon", label: "Colon" },
+  { value: "Breast", label: "Breast" },
+  { value: "Lung", label: "Lung" },
+  { value: "Kidney", label: "Kidney" },
+];
+
+const STATUSES: { value: CaseStatus; label: string; color: string }[] = [
+  { value: "DONE", label: "분석완료", color: "bg-emerald-500" },
+  { value: "PROCESSING", label: "분석중", color: "bg-blue-500" },
+  { value: "WAITING", label: "대기", color: "bg-gray-400" },
+  { value: "ERROR", label: "오류", color: "bg-red-500" },
+];
+
+interface Props {
+  totalCount: number;
+  onClose?: () => void;
+  onCollapse?: () => void;
+}
+
+function ToggleChip({
+  label, active, color, onClick,
+}: { label: string; active: boolean; color?: string; onClick: () => void }) {
+  return (
+    <button onClick={onClick}
+      className={`px-2.5 py-1 rounded-full text-[11px] font-semibold cursor-pointer transition-all border ${
+        active ? `${color ?? "bg-[#1a3a5c]"} text-white border-transparent shadow-sm` : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
+      }`}>
+      {label}
+    </button>
+  );
+}
+
+function CollapsibleSection({
+  title, defaultOpen = true, children, count,
+}: { title: string; defaultOpen?: boolean; children: React.ReactNode; count?: number }) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className="px-4 py-2">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between cursor-pointer group"
+      >
+        <div className="flex items-center gap-1.5">
+          <span className="text-[10px] text-gray-400 uppercase tracking-widest font-semibold group-hover:text-gray-600 transition-colors">
+            {title}
+          </span>
+          {count !== undefined && count > 0 && (
+            <span className="w-4 h-4 rounded-full bg-[#1a3a5c] text-white text-[9px] font-bold flex items-center justify-center">
+              {count}
+            </span>
+          )}
+        </div>
+        <svg
+          viewBox="0 0 20 20" fill="currentColor"
+          className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+        >
+          <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+        </svg>
+      </button>
+      <div
+        className={`overflow-hidden transition-all duration-200 ease-in-out ${
+          open ? "max-h-96 opacity-100 mt-2" : "max-h-0 opacity-0 mt-0"
+        }`}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
+
+export function FilterPanel({ totalCount, onClose, onCollapse }: Props) {
+  const {
+    stainTypes, organs, statuses,
+    organMatch, stainMatch, controlTissue, qcGrade, hasIssue,
+    toggleStain, toggleOrgan, toggleStatus,
+    setOrganMatch, setStainMatch, setControlTissue, setQcGrade, toggleHasIssue,
+    reset,
+  } = useFilters();
+
+  const hasFilters =
+    stainTypes.length > 0 || organs.length > 0 || statuses.length > 0 ||
+    organMatch !== null || stainMatch !== null || controlTissue !== null || qcGrade !== null || hasIssue;
+
+  const qcFilterCount = [organMatch, stainMatch, controlTissue, qcGrade].filter(Boolean).length;
+
+  return (
+    <aside className="w-48 bg-white border-r flex flex-col shrink-0 text-[13px] h-full overflow-hidden">
+      <div className="px-4 py-3 flex items-center justify-between border-b">
+        <span className="text-xs font-bold text-[#1a3a5c] uppercase tracking-widest">필터</span>
+        <div className="flex items-center gap-1.5">
+          {hasFilters && (
+            <button onClick={reset} className="text-[10px] text-blue-600 hover:underline font-medium cursor-pointer">초기화</button>
+          )}
+          {onCollapse && (
+            <button
+              onClick={onCollapse}
+              className="hidden lg:flex w-7 h-7 rounded-lg bg-gray-100 hover:bg-[#1a3a5c] items-center justify-center text-gray-500 hover:text-white cursor-pointer transition-all"
+              title="필터 접기"
+            >
+              <PanelLeftClose className="w-4 h-4" />
+            </button>
+          )}
+          {onClose && (
+            <button onClick={onClose} className="lg:hidden w-6 h-6 rounded hover:bg-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-600 cursor-pointer">✕</button>
+          )}
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto">
+        <div className="px-4 py-3 bg-[#f0f4f8] border-b">
+          <div className="text-[10px] text-gray-500 uppercase tracking-wider">검색 결과</div>
+          <div className="text-xl font-bold text-[#1a3a5c] mt-0.5">{totalCount}</div>
+        </div>
+
+        <div className="px-4 py-2.5">
+          <button
+            onClick={toggleHasIssue}
+            className={`w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-[11px] font-bold transition-all cursor-pointer border ${
+              hasIssue
+                ? "bg-red-500 text-white border-red-500 shadow-sm"
+                : "bg-white text-gray-600 border-gray-200 hover:border-red-300 hover:text-red-600"
+            }`}
+          >
+            <span className={`w-2 h-2 rounded-full ${hasIssue ? "bg-white" : "bg-red-400"}`} />
+            주의 필요
+          </button>
+        </div>
+
+        <div className="border-t" />
+
+        <CollapsibleSection title="QC 필터" count={qcFilterCount}>
+          <div className="flex flex-col gap-2">
+            <div>
+              <div className="text-[9px] text-gray-400 mb-1">장기 일치</div>
+              <div className="flex flex-wrap gap-1.5">
+                <ToggleChip label="일치" active={organMatch === "match"} color="bg-emerald-600" onClick={() => setOrganMatch("match")} />
+                <ToggleChip label="불일치" active={organMatch === "mismatch"} color="bg-red-500" onClick={() => setOrganMatch("mismatch")} />
+              </div>
+            </div>
+            <div>
+              <div className="text-[9px] text-gray-400 mb-1">염색 일치</div>
+              <div className="flex flex-wrap gap-1.5">
+                <ToggleChip label="일치" active={stainMatch === "match"} color="bg-emerald-600" onClick={() => setStainMatch("match")} />
+                <ToggleChip label="불일치" active={stainMatch === "mismatch"} color="bg-red-500" onClick={() => setStainMatch("mismatch")} />
+              </div>
+            </div>
+            <div>
+              <div className="text-[9px] text-gray-400 mb-1">컨트롤 티슈</div>
+              <div className="flex flex-wrap gap-1.5">
+                <ToggleChip label="발현" active={controlTissue === "present"} color="bg-purple-600" onClick={() => setControlTissue("present")} />
+                <ToggleChip label="미발현" active={controlTissue === "missing"} color="bg-red-500" onClick={() => setControlTissue("missing")} />
+              </div>
+            </div>
+            <div>
+              <div className="text-[9px] text-gray-400 mb-1">품질 등급</div>
+              <div className="flex flex-wrap gap-1.5">
+                <ToggleChip label="양호 80+" active={qcGrade === "good"} color="bg-emerald-600" onClick={() => setQcGrade("good")} />
+                <ToggleChip label="보통" active={qcGrade === "fair"} color="bg-amber-500" onClick={() => setQcGrade("fair")} />
+                <ToggleChip label="불량" active={qcGrade === "poor"} color="bg-red-500" onClick={() => setQcGrade("poor")} />
+              </div>
+            </div>
+          </div>
+        </CollapsibleSection>
+
+        <div className="border-t" />
+
+        <CollapsibleSection title="염색 분류" count={stainTypes.length}>
+          <div className="flex flex-col gap-0.5">
+            {STAINS.map((s) => (
+              <label key={s.value} className={`flex items-center py-1 px-1.5 rounded cursor-pointer transition-colors ${stainTypes.includes(s.value) ? "bg-blue-50" : "hover:bg-gray-50"}`}>
+                <div className="flex items-center gap-2">
+                  <Checkbox checked={stainTypes.includes(s.value)} onCheckedChange={() => toggleStain(s.value)} className="h-3 w-3" />
+                  <span className={`w-2 h-2 rounded-full ${s.color}`} />
+                  <span className="text-gray-700">{s.label}</span>
+                </div>
+              </label>
+            ))}
+          </div>
+        </CollapsibleSection>
+
+        <div className="border-t" />
+
+        <CollapsibleSection title="장기" count={organs.length}>
+          <div className="flex flex-col gap-0.5">
+            {ORGANS.map((o) => (
+              <label key={o.value} className={`flex items-center py-1 px-1.5 rounded cursor-pointer transition-colors ${organs.includes(o.value) ? "bg-blue-50" : "hover:bg-gray-50"}`}>
+                <div className="flex items-center gap-2">
+                  <Checkbox checked={organs.includes(o.value)} onCheckedChange={() => toggleOrgan(o.value)} className="h-3 w-3" />
+                  <span className="text-gray-700">{o.label}</span>
+                </div>
+              </label>
+            ))}
+          </div>
+        </CollapsibleSection>
+
+        <div className="border-t" />
+
+        <CollapsibleSection title="상태" count={statuses.length}>
+          <div className="flex flex-col gap-0.5">
+            {STATUSES.map((s) => (
+              <label key={s.value} className={`flex items-center py-1 px-1.5 rounded cursor-pointer transition-colors ${statuses.includes(s.value) ? "bg-blue-50" : "hover:bg-gray-50"}`}>
+                <div className="flex items-center gap-2">
+                  <Checkbox checked={statuses.includes(s.value)} onCheckedChange={() => toggleStatus(s.value)} className="h-3 w-3" />
+                  <span className={`w-1.5 h-1.5 rounded-full ${s.color}`} />
+                  <span className="text-gray-700">{s.label}</span>
+                </div>
+              </label>
+            ))}
+          </div>
+        </CollapsibleSection>
+
+      </div>
+    </aside>
+  );
+}

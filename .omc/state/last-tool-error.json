@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"curl -s -o /dev/null -w \\\"%{http_code}\\\" 'http://192.168.0.225:5173/api/cases?page=1&page_size=5' 2>/dev/null && echo \\\" proxy\\\" && curl -s -o /dev/null -w \\\"%{http_code}\\\" 'http://192.168...",
+  "error": "Exit code 7\n200 proxy\n000",
+  "timestamp": "2026-06-05T06:43:15.357Z",
+  "retry_count": 1
+}
