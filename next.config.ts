@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: "5gb",
     },
+    proxyClientMaxBodySize: "5gb",
   },
   allowedDevOrigins: ["192.168.0.225", "192.168.0.*", "192.168.1.*", "10.*"],
   async rewrites() {
