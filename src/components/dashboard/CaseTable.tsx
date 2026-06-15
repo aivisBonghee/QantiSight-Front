@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useState, useEffect } from "react";
 import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import {
   Table,
@@ -78,10 +78,55 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
     );
   }
 
+  function ProgressBar({ caseId }: { caseId: string }) {
+    const [progress, setProgress] = useState(0);
+    const [step, setStep] = useState("");
+
+    useEffect(() => {
+      let active = true;
+      const poll = async () => {
+        try {
+          const res = await fetch(`/api/analysis/${caseId}/progress`);
+          if (res.ok && active) {
+            const data = await res.json();
+            setProgress(data.progress ?? 0);
+            setStep(data.step ?? "");
+          }
+        } catch {}
+      };
+      poll();
+      const id = setInterval(poll, 3000);
+      return () => { active = false; clearInterval(id); };
+    }, [caseId]);
+
+    return (
+      <div className="mt-0.5 w-full">
+        <div className="h-1.5 w-full bg-white rounded-full overflow-hidden border border-gray-200">
+          <div
+            className="h-full rounded-full bg-blue-500 transition-all duration-1000 ease-out"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+        <span className="text-[8px] text-gray-400 tabular-nums leading-tight truncate block">
+          {step || `${Math.round(progress)}%`}
+        </span>
+      </div>
+    );
+  }
+
+  const IHC_STAINS = ["HER2", "ER", "PR", "KI67"];
+
+  function stainMatches(classification: string | undefined, caseStain: string): boolean {
+    if (!classification || classification === "uncertain") return false;
+    if (classification === "HE") return caseStain === "HE";
+    if (classification.startsWith("IHC")) return IHC_STAINS.includes(caseStain);
+    return classification === caseStain;
+  }
+
   function AiLabel({ value, match }: { value: string; match: boolean }) {
     return (
-      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold ${
-        match ? "bg-emerald-100 text-emerald-800" : "bg-red-100 text-red-800"
+      <span className={`text-[12px] font-semibold ${
+        match ? "text-gray-900" : "text-red-600"
       }`}>
         {value}
       </span>
@@ -97,14 +142,9 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
     if (!c.qcResult) return <StatusBadge status={c.status} />;
     if (!c.qcResult.lesionVolume)
       return <span className="text-[11px] text-gray-400 italic">N/A</span>;
-    const style =
-      c.qcResult.lesionVolume === "Low"
-        ? "bg-emerald-100 text-emerald-800"
-        : c.qcResult.lesionVolume === "Moderate"
-        ? "bg-amber-100 text-amber-800"
-        : "bg-red-100 text-red-800";
+    const isLow = c.qcResult.lesionVolume === "Low";
     return (
-      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold ${style}`}>
+      <span className={`text-[12px] font-semibold ${isLow ? "text-red-600" : "text-gray-900"}`}>
         {c.qcResult.lesionVolume}
       </span>
     );
@@ -113,12 +153,11 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
   function QcCell({ c }: { c: SlideCase }) {
     if (!c.qcResult) return <StatusBadge status={c.status} />;
     const score = c.qcResult.overallQcScore;
-    const ring =
-      score >= 80 ? "border-emerald-500 text-emerald-700"
-      : score >= 60 ? "border-amber-500 text-amber-700"
-      : "border-red-500 text-red-700";
+    const isLow = score < 60;
     return (
-      <span className={`inline-flex items-center justify-center w-9 h-7 rounded-lg border-2 text-xs font-extrabold ${ring}`}>
+      <span className={`inline-flex items-center justify-center w-9 h-7 rounded-lg border-2 text-xs font-extrabold ${
+        isLow ? "border-red-500 text-red-600" : "border-gray-300 text-gray-900"
+      }`}>
         {score}
       </span>
     );
@@ -133,7 +172,7 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
                 {[
                   { key: "no", label: "No.", sort: false, w: "w-[45px]" },
                   { key: "slideId", label: "검체번호", sort: true, w: "min-w-[150px]", align: "text-left" },
-                  { key: "status", label: "상태", sort: false, w: "w-[70px]" },
+                  { key: "status", label: "상태", sort: false, w: "w-[90px]" },
                   { key: "patient", label: "환자 / 케이스", sort: true, w: "w-[130px]" },
                   { key: "organ", label: "장기", sort: true, w: "w-[80px]" },
                   { key: "organMatch", label: "AI 장기", sort: false, w: "w-[75px]" },
@@ -186,8 +225,9 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
                       {c.specimenNo || c.slideId}
                     </span>
                   </TableCell>
-                  <TableCell className="py-1.5 whitespace-nowrap">
+                  <TableCell className="py-1 whitespace-nowrap">
                     <StatusBadge status={c.status} />
+                    {c.status === "PROCESSING" && <ProgressBar caseId={c.id} />}
                   </TableCell>
                   <TableCell className="py-1.5">
                     <div className="text-[12px] font-bold text-gray-900 leading-tight">{c.patientName}</div>
@@ -206,7 +246,7 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
                   </TableCell>
                   <TableCell className="py-1.5 whitespace-nowrap">
                     {c.qcResult ? (
-                      <AiLabel value={c.qcResult.stainClassification} match={c.qcResult.stainClassification === c.stainType} />
+                      <AiLabel value={c.qcResult.stainClassification} match={stainMatches(c.qcResult.stainClassification, c.stainType)} />
                     ) : (
                       <StatusBadge status={c.status} />
                     )}
@@ -216,13 +256,9 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
                       c.qcResult.controlTissuePresent === null ? (
                         <span className="text-[11px] text-gray-400 italic">N/A</span>
                       ) : c.qcResult.controlTissuePresent ? (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 text-[11px] font-bold">
-                          발현
-                        </span>
+                        <span className="text-[12px] font-semibold text-gray-900">발현</span>
                       ) : (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-red-100 text-red-800 text-[11px] font-bold">
-                          미발현
-                        </span>
+                        <span className="text-[12px] font-semibold text-red-600">미발현</span>
                       )
                     ) : (
                       <StatusBadge status={c.status} />

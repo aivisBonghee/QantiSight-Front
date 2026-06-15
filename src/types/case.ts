@@ -1,11 +1,12 @@
 export type HospitalCode = "SMC" | "KUMC" | "HALLYM" | "SCHMC";
 export type StainType = "HE" | "HER2" | "ER" | "PR" | "KI67";
 export type OrganType =
-  | "Stomach"
-  | "Colon"
   | "Breast"
-  | "Lung"
-  | "Kidney";
+  | "Stomach"
+  | "Bladder"
+  | "Thyroid"
+  | "Colon"
+  | "Brain";
 export type CaseStatus = "WAITING" | "PROCESSING" | "DONE" | "CONFIRMED" | "ERROR";
 export type LesionVolume = "Low" | "Moderate" | "High";
 export type ServerLocation =
@@ -79,6 +80,7 @@ export interface QcResult {
   stainConfidence: number;
   lesionAreaRatio: number | null;
   lesionVolume: LesionVolume | null;
+  lesionDetail?: string | null;
   controlTissuePresent: boolean | null;
   controlTissueConfidence: number | null;
   analyzedAt: string;

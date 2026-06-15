@@ -26,7 +26,7 @@ const GIVEN_NAMES = [
 const HOSPITALS: HospitalCode[] = ["SMC", "KUMC", "HALLYM", "SCHMC"];
 const HOSPITAL_WEIGHTS = [0.3, 0.25, 0.2, 0.25];
 const STAINS: StainType[] = ["HE", "HER2", "ER", "PR", "KI67"];
-const ORGANS: OrganType[] = ["Stomach", "Colon", "Breast", "Lung", "Kidney"];
+const ORGANS: OrganType[] = ["Breast", "Stomach", "Bladder", "Thyroid", "Colon", "Brain"];
 const SERVERS: ServerLocation[] = ["server-1", "server-2", "server-3", "server-4", "server-5"];
 const DIAGNOSES = [
   "Adenocarcinoma",

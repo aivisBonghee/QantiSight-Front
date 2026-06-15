@@ -214,6 +214,18 @@ export async function deleteComment(
   if (!res.ok) throw new Error("Failed to delete comment");
 }
 
+export async function fetchAnalysisProgress(
+  caseId: string,
+): Promise<{ progress: number; step: string; status: string }> {
+  try {
+    const res = await fetch(`/api/analysis/${caseId}/progress`);
+    if (!res.ok) return { progress: 0, step: "", status: "PROCESSING" };
+    return await res.json();
+  } catch {
+    return { progress: 0, step: "", status: "PROCESSING" };
+  }
+}
+
 export async function confirmCase(
   caseId: string,
   request: CaseConfirmRequest,

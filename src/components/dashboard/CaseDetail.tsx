@@ -193,6 +193,15 @@ function TagList({ items }: { items: string }) {
   );
 }
 
+const IHC_STAINS = ["HER2", "ER", "PR", "KI67"];
+
+function stainMatches(classification: string | undefined, caseStain: string): boolean {
+  if (!classification || classification === "uncertain") return false;
+  if (classification === "HE") return caseStain === "HE";
+  if (classification.startsWith("IHC")) return IHC_STAINS.includes(caseStain);
+  return classification === caseStain;
+}
+
 export function CaseDetail({ slideCase, onClose, onCommentAdded }: Props) {
   const qc = slideCase.qcResult;
   const isDone = slideCase.status === "DONE";
@@ -346,16 +355,22 @@ export function CaseDetail({ slideCase, onClose, onCommentAdded }: Props) {
         {/* Quality Score */}
         <Section title="품질 평가">
           {qc ? (
-            <div className="flex items-center gap-4">
-              <AnimatedGauge
-                value={qc.overallQcScore}
-                color={qc.overallQcScore >= 80 ? "#27BE69" : qc.overallQcScore >= 60 ? "#FFCF0F" : "#FF4242"}
-              />
-              <div className="flex-1 flex flex-col gap-2">
-                <AnimatedBar label="Focus Score" value={qc.focusScore} color={qc.focusScore >= 70 ? "bg-[#1a3a5c]" : "bg-red-400"} />
-                <AnimatedBar label="Stain Quality" value={qc.stainQuality} color={qc.stainQuality >= 70 ? "bg-[#1a3a5c]" : "bg-amber-400"} />
-                <AnimatedBar label="Tissue Coverage" value={qc.tissueCoverage} color={qc.tissueCoverage >= 50 ? "bg-[#1a3a5c]" : "bg-amber-400"} />
-              </div>
+            <div>
+              {qc.overallQcScore ? (
+                <div className="flex items-center gap-4">
+                  <AnimatedGauge
+                    value={qc.overallQcScore}
+                    color={qc.overallQcScore >= 80 ? "#27BE69" : qc.overallQcScore >= 60 ? "#FFCF0F" : "#FF4242"}
+                  />
+                  <div className="flex-1 flex flex-col gap-2">
+                    {qc.focusScore ? <AnimatedBar label="Focus Score" value={qc.focusScore} color={qc.focusScore >= 70 ? "bg-[#1a3a5c]" : "bg-red-400"} /> : null}
+                    {qc.stainQuality ? <AnimatedBar label="Stain Quality" value={qc.stainQuality} color={qc.stainQuality >= 70 ? "bg-[#1a3a5c]" : "bg-amber-400"} /> : null}
+                    {qc.tissueCoverage ? <AnimatedBar label="Tissue Coverage" value={qc.tissueCoverage} color={qc.tissueCoverage >= 50 ? "bg-[#1a3a5c]" : "bg-amber-400"} /> : null}
+                  </div>
+                </div>
+              ) : (
+                <p className="text-[11px] text-gray-400 italic">품질 점수 미지원 (AI 모델 범위 외)</p>
+              )}
             </div>
           ) : (
             <p className="text-xs text-gray-400">분석 대기</p>
@@ -392,7 +407,7 @@ export function CaseDetail({ slideCase, onClose, onCommentAdded }: Props) {
                 <div className="text-[10px] text-gray-500">의뢰: <span className="font-bold text-gray-700">{slideCase.stainType}</span></div>
                 <div className="flex items-center gap-2">
                   <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full ${
-                    qc.stainClassification === slideCase.stainType ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"
+                    stainMatches(qc.stainClassification, slideCase.stainType) ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"
                   }`}>
                     {qc.stainClassification}
                   </span>
@@ -408,8 +423,8 @@ export function CaseDetail({ slideCase, onClose, onCommentAdded }: Props) {
         {/* Control Tissue */}
         <Section title="컨트롤 티슈 발현">
           {qc ? (
-            qc.controlTissuePresent === null ? (
-              <p className="text-xs text-gray-400 italic">H&E 염색 — 해당 없음</p>
+            qc.controlTissuePresent === null || qc.controlTissuePresent === undefined ? (
+              <p className="text-[11px] text-gray-400 italic">컨트롤 티슈 검출 미지원 (AI 모델 범위 외)</p>
             ) : (
               <div className="flex items-center gap-3">
                 <div
@@ -474,6 +489,31 @@ export function CaseDetail({ slideCase, onClose, onCommentAdded }: Props) {
                 />
               </div>
               <div className="text-[10px] text-gray-400 mt-1">종양 / 조직 면적 비율</div>
+              {(() => {
+                if (!qc.lesionDetail) return null;
+                try {
+                  const d = JSON.parse(qc.lesionDetail);
+                  return (
+                    <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1.5 text-[10px]">
+                      {d.n_tumor_cells != null && (
+                        <div><span className="text-gray-400">종양 세포</span> <span className="font-bold text-gray-700">{d.n_tumor_cells.toLocaleString()}</span></div>
+                      )}
+                      {d.n_non_tumor_cells != null && (
+                        <div><span className="text-gray-400">비종양 세포</span> <span className="font-bold text-gray-700">{d.n_non_tumor_cells.toLocaleString()}</span></div>
+                      )}
+                      {d.tumor_cell_fraction != null && (
+                        <div><span className="text-gray-400">종양 세포 비율</span> <span className="font-bold text-gray-700">{(d.tumor_cell_fraction * 100).toFixed(1)}%</span></div>
+                      )}
+                      {d.tumor_cell_density_per_mm2 != null && (
+                        <div><span className="text-gray-400">밀도</span> <span className="font-bold text-gray-700">{d.tumor_cell_density_per_mm2.toFixed(1)}/mm²</span></div>
+                      )}
+                      {d.tissue_area_mm2 != null && (
+                        <div className="col-span-2"><span className="text-gray-400">조직 면적</span> <span className="font-bold text-gray-700">{d.tissue_area_mm2.toFixed(1)} mm²</span></div>
+                      )}
+                    </div>
+                  );
+                } catch { return null; }
+              })()}
             </div>
           ) : qc ? (
             <p className="text-xs text-gray-400 italic">비암 진단 - 데이터 없음</p>

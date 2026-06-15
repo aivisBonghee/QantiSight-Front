@@ -56,6 +56,7 @@ function Dashboard() {
     controlTissue: filters.controlTissue,
     qcGrade: filters.qcGrade,
     serverLocation: filters.serverLocation,
+    hasIssue: filters.hasIssue,
   });
 
   const sortDbMap: Record<string, string> = {

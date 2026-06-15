@@ -15,11 +15,12 @@ const STAINS: { value: StainType; label: string; color: string }[] = [
 ];
 
 const ORGANS: { value: OrganType; label: string }[] = [
-  { value: "Stomach", label: "Stomach" },
-  { value: "Colon", label: "Colon" },
   { value: "Breast", label: "Breast" },
-  { value: "Lung", label: "Lung" },
-  { value: "Kidney", label: "Kidney" },
+  { value: "Stomach", label: "Stomach" },
+  { value: "Bladder", label: "Bladder" },
+  { value: "Thyroid", label: "Thyroid" },
+  { value: "Colon", label: "Colon" },
+  { value: "Brain", label: "Brain" },
 ];
 
 const STATUSES: { value: CaseStatus; label: string; color: string }[] = [
