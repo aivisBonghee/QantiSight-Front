@@ -63,7 +63,7 @@ export function ChatBot() {
     }
   }
 
-  function handleSend() {
+  async function handleSend() {
     const trimmed = input.trim();
     if (!trimmed || isTyping) return;
 
@@ -80,19 +80,86 @@ export function ChatBot() {
       textareaRef.current.style.height = "auto";
     }
 
-    // Simulate assistant response (placeholder until backend is connected)
     setIsTyping(true);
-    setTimeout(() => {
-      const assistantMessage: Message = {
-        id: `assistant-${Date.now()}`,
-        role: "assistant",
-        content:
-          "현재 백엔드 연동 전 단계입니다. 곧 실제 QC 데이터 기반 응답을 제공할 예정입니다.",
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, assistantMessage]);
+
+    const history = messages
+      .filter((m) => m.id !== "welcome")
+      .map((m) => ({
+        role: m.role === "user" ? "user" : "model",
+        parts: m.content,
+      }));
+
+    const assistantId = `assistant-${Date.now()}`;
+    setMessages((prev) => [
+      ...prev,
+      { id: assistantId, role: "assistant", content: "", timestamp: new Date() },
+    ]);
+
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: trimmed, history }),
+      });
+
+      if (!res.ok) {
+        throw new Error(`서버 오류 (${res.status})`);
+      }
+
+      const reader = res.body?.getReader();
+      if (!reader) throw new Error("스트리밍을 사용할 수 없습니다.");
+
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          try {
+            const data = JSON.parse(line.slice(6));
+            if (data.type === "text") {
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === assistantId
+                    ? { ...m, content: m.content + data.content }
+                    : m
+                )
+              );
+            } else if (data.type === "error") {
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === assistantId
+                    ? { ...m, content: `오류: ${data.content}` }
+                    : m
+                )
+              );
+            }
+          } catch {
+            // skip malformed SSE lines
+          }
+        }
+      }
+    } catch (err) {
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === assistantId
+            ? {
+                ...m,
+                content: `연결 오류: ${err instanceof Error ? err.message : "알 수 없는 오류"}`,
+              }
+            : m
+        )
+      );
+    } finally {
       setIsTyping(false);
-    }, 800);
+    }
   }
 
   function formatTime(date: Date) {

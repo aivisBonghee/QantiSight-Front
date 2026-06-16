@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useFilters } from "@/hooks/useFilters";
 import { PanelLeftClose } from "lucide-react";
@@ -60,7 +60,7 @@ function CollapsibleSection({
         className="w-full flex items-center justify-between cursor-pointer group"
       >
         <div className="flex items-center gap-1.5">
-          <span className="text-[10px] text-gray-400 uppercase tracking-widest font-semibold group-hover:text-gray-600 transition-colors">
+          <span className="text-[11px] text-gray-500 uppercase tracking-wider font-bold group-hover:text-gray-600 transition-colors">
             {title}
           </span>
           {count !== undefined && count > 0 && (
@@ -90,6 +90,7 @@ function CollapsibleSection({
 export function FilterPanel({ totalCount, onClose, onCollapse }: Props) {
   const [doctorInput, setDoctorInput] = useState("");
   const [doctors, setDoctors] = useState<string[]>([]);
+  const composingRef = useRef(false);
 
   const {
     stainTypes, organs, statuses,
@@ -252,11 +253,13 @@ export function FilterPanel({ totalCount, onClose, onCollapse }: Props) {
             <input
               value={doctorInput}
               onChange={(e) => setDoctorInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") addDoctor(); }}
+              onKeyDown={(e) => { if (e.key === "Enter" && !composingRef.current) addDoctor(); }}
+              onCompositionStart={() => { composingRef.current = true; }}
+              onCompositionEnd={() => { composingRef.current = false; }}
               placeholder="의사명"
-              className="min-w-0 flex-1 text-[11px] border rounded px-1.5 py-1 focus:outline-none focus:ring-1 focus:ring-[#355C94]"
+              className="min-w-0 flex-1 text-[11px] border rounded px-1.5 py-1 focus:outline-none focus:ring-1 focus:ring-[#355C94] focus:border-[#355C94]"
             />
-            <button onClick={addDoctor} className="shrink-0 text-[10px] px-1.5 py-1 rounded bg-[#1a3a5c] text-white hover:bg-[#355C94] cursor-pointer">+</button>
+            <button onClick={addDoctor} className="shrink-0 text-[10px] px-2 py-1 min-w-[28px] rounded bg-[#1a3a5c] text-white hover:bg-[#355C94] cursor-pointer">+</button>
           </div>
           {doctors.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-1.5">
