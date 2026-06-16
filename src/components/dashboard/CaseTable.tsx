@@ -84,6 +84,7 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
 
     useEffect(() => {
       let active = true;
+      let intervalId: ReturnType<typeof setInterval>;
       const poll = async () => {
         try {
           const res = await fetch(`/api/analysis/${caseId}/progress`);
@@ -91,12 +92,15 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
             const data = await res.json();
             setProgress(data.progress ?? 0);
             setStep(data.step ?? "");
+            if (data.status !== "PROCESSING") {
+              clearInterval(intervalId);
+            }
           }
         } catch {}
       };
       poll();
-      const id = setInterval(poll, 3000);
-      return () => { active = false; clearInterval(id); };
+      intervalId = setInterval(poll, 3000);
+      return () => { active = false; clearInterval(intervalId); };
     }, [caseId]);
 
     return (
