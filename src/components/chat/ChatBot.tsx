@@ -56,6 +56,30 @@ export function ChatBot() {
   }
 
   const composingRef = useRef(false);
+  const [btnPos, setBtnPos] = useState({ x: 24, y: 24 });
+  const dragRef = useRef<{ startX: number; startY: number; origX: number; origY: number; moved: boolean } | null>(null);
+
+  function onPointerDown(e: React.PointerEvent) {
+    dragRef.current = { startX: e.clientX, startY: e.clientY, origX: btnPos.x, origY: btnPos.y, moved: false };
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  }
+
+  function onPointerMove(e: React.PointerEvent) {
+    if (!dragRef.current) return;
+    const dx = e.clientX - dragRef.current.startX;
+    const dy = e.clientY - dragRef.current.startY;
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) dragRef.current.moved = true;
+    const newX = Math.max(8, Math.min(window.innerWidth - 56, dragRef.current.origX + (window.innerWidth - e.clientX) - (window.innerWidth - dragRef.current.startX - dragRef.current.origX)));
+    const newY = Math.max(8, Math.min(window.innerHeight - 56, dragRef.current.origY + (window.innerHeight - e.clientY) - (window.innerHeight - dragRef.current.startY - dragRef.current.origY)));
+    setBtnPos({ x: newX, y: newY });
+  }
+
+  function onPointerUp() {
+    if (dragRef.current && !dragRef.current.moved) {
+      setIsOpen((prev) => !prev);
+    }
+    dragRef.current = null;
+  }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && !e.shiftKey && !composingRef.current) {
@@ -362,20 +386,23 @@ export function ChatBot() {
         </div>
       </div>
 
-      {/* Floating toggle button */}
+      {/* Floating toggle button (draggable) */}
       <button
-        onClick={() => setIsOpen((prev) => !prev)}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
         aria-label={isOpen ? "Close chat" : "Open QantiSight AI chat"}
         aria-expanded={isOpen}
+        style={{ right: btnPos.x, bottom: btnPos.y }}
         className={cn(
-          "fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50",
+          "fixed z-50 touch-none select-none",
           "w-12 h-12 rounded-full shadow-lg shadow-[#08376A]/30",
           "flex items-center justify-center",
-          "transition-all duration-200 ease-out cursor-pointer",
+          "cursor-grab active:cursor-grabbing",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#355C94] focus-visible:ring-offset-2",
           isOpen
-            ? "bg-[#22487B] hover:bg-[#08376A] rotate-0 scale-100"
-            : "bg-[#355C94] hover:bg-[#22487B] scale-100 hover:scale-105"
+            ? "bg-[#22487B] hover:bg-[#08376A]"
+            : "bg-[#355C94] hover:bg-[#22487B]"
         )}
       >
         {/* Chat icon when closed */}
