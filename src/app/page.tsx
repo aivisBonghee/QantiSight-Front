@@ -57,6 +57,7 @@ function Dashboard() {
     qcGrade: filters.qcGrade,
     serverLocation: filters.serverLocation,
     hasIssue: filters.hasIssue,
+    pathologist: filters.pathologist,
   });
 
   const sortDbMap: Record<string, string> = {
@@ -65,11 +66,20 @@ function Dashboard() {
   };
   const sortBy = sortDbMap[sortKey] || sortKey;
 
-  const { data: casesData, isFetching, isLoading } = useQuery({
+  const { data: rawCasesData, isFetching, isLoading } = useQuery({
     queryKey: ["cases", filtersKey, page, sortBy, sortDir],
     queryFn: () => fetchCases(filters, page, pageSize, sortBy, sortDir),
     placeholderData: (prev) => prev,
   });
+
+  const casesData = rawCasesData && filters.pathologist
+    ? {
+        ...rawCasesData,
+        items: rawCasesData.items.filter((c) =>
+          c.patientName.toLowerCase().includes(filters.pathologist!.toLowerCase())
+        ),
+      }
+    : rawCasesData;
 
   const { data: summary } = useQuery({
     queryKey: ["summary", filtersKey],

@@ -122,7 +122,7 @@ export function SummaryCards({ summary }: Props) {
           style={{ animationDelay: `${i * 60}ms` }}
         >
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[9px] font-bold uppercase tracking-wider text-white/90 leading-tight">
+            <span className="text-xs font-extrabold uppercase tracking-wider text-white leading-tight">
               {c.label}
             </span>
             <span className="w-8 h-8 rounded-lg bg-white/15 flex items-center justify-center text-white p-1.5 shrink-0">
