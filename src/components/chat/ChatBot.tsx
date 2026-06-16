@@ -61,7 +61,7 @@ export function ChatBot() {
 
   function onPointerDown(e: React.PointerEvent) {
     dragRef.current = { startX: e.clientX, startY: e.clientY, origX: btnPos.x, origY: btnPos.y, moved: false };
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
   }
 
   function onPointerMove(e: React.PointerEvent) {
@@ -69,8 +69,9 @@ export function ChatBot() {
     const dx = e.clientX - dragRef.current.startX;
     const dy = e.clientY - dragRef.current.startY;
     if (Math.abs(dx) > 3 || Math.abs(dy) > 3) dragRef.current.moved = true;
-    const newX = Math.max(8, Math.min(window.innerWidth - 56, dragRef.current.origX + (window.innerWidth - e.clientX) - (window.innerWidth - dragRef.current.startX - dragRef.current.origX)));
-    const newY = Math.max(8, Math.min(window.innerHeight - 56, dragRef.current.origY + (window.innerHeight - e.clientY) - (window.innerHeight - dragRef.current.startY - dragRef.current.origY)));
+    if (!dragRef.current.moved) return;
+    const newX = Math.max(8, Math.min(window.innerWidth - 56, dragRef.current.origX - dx));
+    const newY = Math.max(8, Math.min(window.innerHeight - 56, dragRef.current.origY - dy));
     setBtnPos({ x: newX, y: newY });
   }
 
