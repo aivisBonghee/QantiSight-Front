@@ -36,6 +36,7 @@ export interface SlideCase {
   organ: OrganType;
   stainType: StainType;
   diagnosis: string;
+  pathologist?: string | null;
   status: CaseStatus;
   serverLocation: ServerLocation;
   imagePath: string | null;
@@ -102,6 +103,7 @@ export interface CaseFilters {
   qcGrade: QcGrade | null;
   serverLocation: ServerLocation | null;
   hasIssue: boolean;
+  pathologist: string | null;
 }
 
 export interface DashboardSummary {

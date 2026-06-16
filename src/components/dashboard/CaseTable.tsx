@@ -176,8 +176,10 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
                 {[
                   { key: "no", label: "No.", sort: false, w: "w-[45px]" },
                   { key: "slideId", label: "검체번호", sort: true, w: "min-w-[150px]", align: "text-left" },
+                  { key: "date", label: "업로드 일자", sort: true, w: "w-[110px]" },
                   { key: "status", label: "상태", sort: false, w: "w-[90px]" },
                   { key: "patient", label: "환자 / 케이스", sort: true, w: "w-[130px]" },
+                  { key: "pathologist", label: "판독의", sort: false, w: "w-[90px]" },
                   { key: "organ", label: "장기", sort: true, w: "w-[80px]" },
                   { key: "organMatch", label: "AI 장기", sort: false, w: "w-[75px]" },
                   { key: "stain", label: "염색", sort: true, w: "w-[60px]" },
@@ -185,7 +187,7 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
                   { key: "control", label: "컨트롤 티슈", sort: false, w: "w-[85px]" },
                   { key: "lesion", label: "병변량", sort: false, w: "w-[75px]" },
                   { key: "qc", label: "품질", sort: true, w: "w-[70px]" },
-                  { key: "date", label: "업로드 일자", sort: true, w: "w-[110px]" },
+                  { key: "qcSummary", label: "QC 종합", sort: false, w: "w-[80px]" },
                 ].map((col) => (
                   <TableHead
                     key={col.key}
@@ -229,6 +231,9 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
                       {c.specimenNo || c.slideId}
                     </span>
                   </TableCell>
+                  <TableCell className="py-1.5 whitespace-nowrap text-[11px] text-gray-500">
+                    {c.createdAt ? c.createdAt.split("T")[0] : ""}
+                  </TableCell>
                   <TableCell className="py-1 whitespace-nowrap">
                     <StatusBadge status={c.status} />
                     {c.status === "PROCESSING" && <ProgressBar caseId={c.id} />}
@@ -236,6 +241,9 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
                   <TableCell className="py-1.5">
                     <div className="text-[12px] font-bold text-gray-900 leading-tight">{c.patientName}</div>
                     <div className="text-[10px] text-gray-500 font-mono leading-tight">{c.patientId}</div>
+                  </TableCell>
+                  <TableCell className="py-1.5 whitespace-nowrap">
+                    <span className="text-[12px] text-gray-700">{c.pathologist || "-"}</span>
                   </TableCell>
                   <TableCell className="py-1.5 whitespace-nowrap">
                     <span className="text-[13px] font-semibold text-gray-800">{c.organ}</span>
@@ -274,8 +282,14 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
                   <TableCell className="py-1.5 whitespace-nowrap">
                     <QcCell c={c} />
                   </TableCell>
-                  <TableCell className="py-1.5 whitespace-nowrap text-[11px] text-gray-500">
-                    {c.createdAt ? c.createdAt.split("T")[0] : ""}
+                  <TableCell className="py-1.5 whitespace-nowrap">
+                    {!c.qcResult ? (
+                      <span className="text-gray-400">-</span>
+                    ) : c.qcResult.organMatch && stainMatches(c.qcResult.stainClassification, c.stainType) ? (
+                      <span className="text-emerald-600 font-bold text-[12px]">적합</span>
+                    ) : (
+                      <span className="text-red-600 font-bold text-[12px]">부적합</span>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}

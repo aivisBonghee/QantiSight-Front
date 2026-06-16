@@ -88,17 +88,34 @@ function CollapsibleSection({
 }
 
 export function FilterPanel({ totalCount, onClose, onCollapse }: Props) {
+  const [doctorInput, setDoctorInput] = useState("");
+  const [doctors, setDoctors] = useState<string[]>([]);
+
   const {
     stainTypes, organs, statuses,
-    organMatch, stainMatch, controlTissue, qcGrade, hasIssue,
+    organMatch, stainMatch, controlTissue, qcGrade, hasIssue, pathologist,
     toggleStain, toggleOrgan, toggleStatus,
     setOrganMatch, setStainMatch, setControlTissue, setQcGrade, toggleHasIssue,
+    setPathologist,
     reset,
   } = useFilters();
 
+  function addDoctor() {
+    const trimmed = doctorInput.trim();
+    if (trimmed && !doctors.includes(trimmed)) {
+      setDoctors((prev) => [...prev, trimmed]);
+    }
+    setDoctorInput("");
+  }
+
+  function removeDoctor(d: string) {
+    setDoctors((prev) => prev.filter((x) => x !== d));
+    if (pathologist === d) setPathologist(null);
+  }
+
   const hasFilters =
     stainTypes.length > 0 || organs.length > 0 || statuses.length > 0 ||
-    organMatch !== null || stainMatch !== null || controlTissue !== null || qcGrade !== null || hasIssue;
+    organMatch !== null || stainMatch !== null || controlTissue !== null || qcGrade !== null || hasIssue || pathologist !== null;
 
   const qcFilterCount = [organMatch, stainMatch, controlTissue, qcGrade].filter(Boolean).length;
 
@@ -224,6 +241,38 @@ export function FilterPanel({ totalCount, onClose, onCollapse }: Props) {
                   <span className="text-gray-700">{s.label}</span>
                 </div>
               </label>
+            ))}
+          </div>
+        </CollapsibleSection>
+
+        <div className="border-t" />
+
+        <CollapsibleSection title="판독의" count={pathologist !== null ? 1 : 0}>
+          <div className="flex gap-1">
+            <input
+              value={doctorInput}
+              onChange={(e) => setDoctorInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") addDoctor(); }}
+              placeholder="의사명 입력"
+              className="flex-1 text-[11px] border rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-[#355C94]"
+            />
+            <button onClick={addDoctor} className="text-[10px] px-2 py-1 rounded bg-[#1a3a5c] text-white hover:bg-[#355C94]">추가</button>
+          </div>
+          <div className="flex flex-wrap gap-1 mt-1.5">
+            {doctors.map((d) => (
+              <button
+                key={d}
+                onClick={() => setPathologist(pathologist === d ? null : d)}
+                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border transition-all ${
+                  pathologist === d ? "bg-[#1a3a5c] text-white border-transparent" : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
+                }`}
+              >
+                {d}
+                <span
+                  onClick={(e) => { e.stopPropagation(); removeDoctor(d); }}
+                  className="text-[8px] hover:text-red-400"
+                >✕</span>
+              </button>
             ))}
           </div>
         </CollapsibleSection>

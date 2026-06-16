@@ -54,8 +54,10 @@ export function ChatBot() {
     autoResizeTextarea();
   }
 
+  const composingRef = useRef(false);
+
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey && !composingRef.current) {
       e.preventDefault();
       handleSend();
     }
@@ -243,6 +245,8 @@ export function ChatBot() {
               value={input}
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}
+              onCompositionStart={() => { composingRef.current = true; }}
+              onCompositionEnd={() => { composingRef.current = false; }}
               placeholder="메시지를 입력하세요..."
               rows={1}
               className="flex-1 resize-none bg-transparent text-sm text-[#1a2d4a] placeholder:text-[#355C94]/35 outline-none leading-relaxed min-h-[24px] max-h-[120px] py-0"

@@ -21,6 +21,7 @@ interface FilterState extends CaseFilters {
   setQcGrade: (v: QcGrade | null) => void;
   setServerLocation: (v: ServerLocation | null) => void;
   toggleHasIssue: () => void;
+  setPathologist: (v: string | null) => void;
   reset: () => void;
 }
 
@@ -36,6 +37,7 @@ const initial: CaseFilters = {
   qcGrade: null,
   serverLocation: null,
   hasIssue: false,
+  pathologist: null,
 };
 
 export const useFilters = create<FilterState>((set) => ({
@@ -65,5 +67,6 @@ export const useFilters = create<FilterState>((set) => ({
   setQcGrade: (v) => set((s) => ({ qcGrade: s.qcGrade === v ? null : v })),
   setServerLocation: (v) => set((s) => ({ serverLocation: s.serverLocation === v ? null : v })),
   toggleHasIssue: () => set((s) => ({ hasIssue: !s.hasIssue })),
+  setPathologist: (v) => set({ pathologist: v }),
   reset: () => set(initial),
 }));
