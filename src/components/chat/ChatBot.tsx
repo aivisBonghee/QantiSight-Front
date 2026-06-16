@@ -195,6 +195,24 @@ export function ChatBot() {
     });
   }
 
+  const _vh = typeof window !== "undefined" ? window.innerHeight : 800;
+  const _btnTop = _vh - btnPos.y - 48;
+  const _gap = 8;
+  const _showAbove = _btnTop - _gap >= 300;
+  const _panelStyle: React.CSSProperties = _showAbove
+    ? {
+        right: `clamp(1rem, ${btnPos.x}px, calc(100vw - 376px))`,
+        bottom: btnPos.y + 48 + _gap,
+        height: "clamp(420px, 60vh, 560px)",
+        maxHeight: _btnTop - _gap,
+      }
+    : {
+        right: `clamp(1rem, ${btnPos.x}px, calc(100vw - 376px))`,
+        top: _vh - btnPos.y + _gap,
+        height: "clamp(420px, 60vh, 560px)",
+        maxHeight: btnPos.y - _gap - 16,
+      };
+
   return (
     <>
       {/* Chat panel */}
@@ -202,21 +220,20 @@ export function ChatBot() {
         aria-hidden={!isOpen}
         className={cn(
           "fixed z-40 flex flex-col",
-          // Desktop: bottom-right popup
-          "bottom-20 right-4 w-[360px] max-w-[calc(100vw-2rem)]",
-          "sm:bottom-20 sm:right-6",
-          // Mobile: fullscreen
-          "max-sm:bottom-0 max-sm:right-0 max-sm:left-0 max-sm:top-0 max-sm:w-full max-sm:max-w-none",
+          "w-[360px] max-w-[calc(100vw-2rem)]",
+          // Mobile: fullscreen (! overrides inline style)
+          "max-sm:!inset-0 max-sm:!w-full max-sm:!max-w-none max-sm:!h-full max-sm:!max-h-none",
           // Panel base
           "rounded-2xl max-sm:rounded-none",
           "bg-white border border-[#355C94]/15 shadow-2xl shadow-[#08376A]/15",
           // Animation
-          "transition-all duration-200 ease-out origin-bottom-right max-sm:origin-bottom",
+          "transition-[opacity,transform] duration-200 ease-out max-sm:origin-bottom",
+          _showAbove ? "origin-bottom-right" : "origin-top-right",
           isOpen
             ? "opacity-100 scale-100 pointer-events-auto"
             : "opacity-0 scale-95 pointer-events-none"
         )}
-        style={{ height: "clamp(420px, 60vh, 560px)" }}
+        style={_panelStyle}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 bg-[#355C94] rounded-t-2xl max-sm:rounded-none shrink-0">
