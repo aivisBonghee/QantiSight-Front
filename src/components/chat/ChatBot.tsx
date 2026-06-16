@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect, useCallback } from "react";
+import ReactMarkdown from "react-markdown";
 import { cn } from "@/lib/utils";
 
 interface Message {
@@ -261,7 +262,24 @@ export function ChatBot() {
                     : "bg-[#F5F7FA] text-[#1a2d4a] rounded-tl-sm border border-[#355C94]/8"
                 )}
               >
-                <p>{msg.content}</p>
+                {msg.role === "assistant" ? (
+                  <ReactMarkdown
+                    components={{
+                      p: ({ children }) => <p className="mb-1.5 last:mb-0">{children}</p>,
+                      strong: ({ children }) => <strong className="font-bold">{children}</strong>,
+                      ul: ({ children }) => <ul className="list-disc pl-4 mb-1.5 space-y-0.5">{children}</ul>,
+                      ol: ({ children }) => <ol className="list-decimal pl-4 mb-1.5 space-y-0.5">{children}</ol>,
+                      li: ({ children }) => <li className="text-sm">{children}</li>,
+                      code: ({ children }) => <code className="bg-black/10 rounded px-1 py-0.5 text-xs font-mono">{children}</code>,
+                      h3: ({ children }) => <h3 className="font-bold text-sm mt-2 mb-1">{children}</h3>,
+                      h4: ({ children }) => <h4 className="font-semibold text-sm mt-1.5 mb-0.5">{children}</h4>,
+                    }}
+                  >
+                    {msg.content}
+                  </ReactMarkdown>
+                ) : (
+                  <p>{msg.content}</p>
+                )}
                 <p
                   className={cn(
                     "text-[10px] mt-1 leading-none",
