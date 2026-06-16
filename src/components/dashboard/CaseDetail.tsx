@@ -373,7 +373,7 @@ export function CaseDetail({ slideCase, onClose, onCommentAdded }: Props) {
               )}
             </div>
           ) : (
-            <p className="text-xs text-gray-400">분석 대기</p>
+            <p className="text-sm text-gray-400">-</p>
           )}
         </Section>
 
@@ -395,7 +395,7 @@ export function CaseDetail({ slideCase, onClose, onCommentAdded }: Props) {
                 </div>
               </div>
             ) : (
-              <p className="text-xs text-gray-400">대기</p>
+              <p className="text-sm text-gray-400">-</p>
             )}
           </div>
 
@@ -415,7 +415,7 @@ export function CaseDetail({ slideCase, onClose, onCommentAdded }: Props) {
                 </div>
               </div>
             ) : (
-              <p className="text-xs text-gray-400">대기</p>
+              <p className="text-sm text-gray-400">-</p>
             )}
           </div>
         </div>
@@ -458,7 +458,7 @@ export function CaseDetail({ slideCase, onClose, onCommentAdded }: Props) {
               </div>
             )
           ) : (
-            <p className="text-xs text-gray-400">분석 대기</p>
+            <p className="text-sm text-gray-400">-</p>
           )}
         </Section>
 
@@ -518,7 +518,7 @@ export function CaseDetail({ slideCase, onClose, onCommentAdded }: Props) {
           ) : qc ? (
             <p className="text-xs text-gray-400 italic">비암 진단 - 데이터 없음</p>
           ) : (
-            <p className="text-xs text-gray-400">분석 대기</p>
+            <p className="text-sm text-gray-400">-</p>
           )}
         </Section>
 

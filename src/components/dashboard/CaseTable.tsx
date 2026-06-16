@@ -138,12 +138,12 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
   }
 
   function OrganMatchCell({ c }: { c: SlideCase }) {
-    if (!c.qcResult) return <StatusBadge status={c.status} />;
+    if (!c.qcResult) return <span className="text-gray-400">-</span>;
     return <AiLabel value={c.qcResult.detectedOrgan} match={c.qcResult.organMatch} />;
   }
 
   function LesionCell({ c }: { c: SlideCase }) {
-    if (!c.qcResult) return <StatusBadge status={c.status} />;
+    if (!c.qcResult) return <span className="text-gray-400">-</span>;
     if (!c.qcResult.lesionVolume)
       return <span className="text-[11px] text-gray-400 italic">N/A</span>;
     const isLow = c.qcResult.lesionVolume === "Low";
@@ -155,7 +155,7 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
   }
 
   function QcCell({ c }: { c: SlideCase }) {
-    if (!c.qcResult) return <StatusBadge status={c.status} />;
+    if (!c.qcResult) return <span className="text-gray-400">-</span>;
     const score = c.qcResult.overallQcScore;
     const isLow = score < 60;
     return (
@@ -252,7 +252,7 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
                     {c.qcResult ? (
                       <AiLabel value={c.qcResult.stainClassification} match={stainMatches(c.qcResult.stainClassification, c.stainType)} />
                     ) : (
-                      <StatusBadge status={c.status} />
+                      <span className="text-gray-400">-</span>
                     )}
                   </TableCell>
                   <TableCell className="py-1.5 whitespace-nowrap">
@@ -265,7 +265,7 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
                         <span className="text-[12px] font-semibold text-red-600">미발현</span>
                       )
                     ) : (
-                      <StatusBadge status={c.status} />
+                      <span className="text-gray-400">-</span>
                     )}
                   </TableCell>
                   <TableCell className="py-1.5 whitespace-nowrap">
