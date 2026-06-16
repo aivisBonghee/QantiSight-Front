@@ -7,6 +7,7 @@ interface ApiCaseResponse {
   hospital_code: string;
   patient_id: string;
   patient_name: string;
+  pathologist: string | null;
   exam_no: string;
   exam_date: string;
   organ: string;
@@ -72,6 +73,7 @@ function mapCase(c: ApiCaseResponse): SlideCase {
     ihcMarkers: c.ihc_markers,
     molecularTest: c.molecular_test,
     clinicalInfo: c.clinical_info,
+    pathologist: c.pathologist,
     createdAt: c.created_at ?? "",
     qcResult: c.qc_result
       ? {
@@ -115,6 +117,7 @@ function buildFilterParams(filters: CaseFilters): URLSearchParams {
   if (filters.controlTissue) params.set("control_tissue", filters.controlTissue);
   if (filters.qcGrade) params.set("qc_grade", filters.qcGrade);
   if (filters.hasIssue) params.set("has_issue", "true");
+  if (filters.pathologist) params.set("pathologist", filters.pathologist);
   return params;
 }
 

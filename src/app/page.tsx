@@ -72,14 +72,7 @@ function Dashboard() {
     placeholderData: (prev) => prev,
   });
 
-  const casesData = rawCasesData && filters.pathologist
-    ? {
-        ...rawCasesData,
-        items: rawCasesData.items.filter((c) =>
-          c.patientName.toLowerCase().includes(filters.pathologist!.toLowerCase())
-        ),
-      }
-    : rawCasesData;
+  const casesData = rawCasesData;
 
   const { data: summary } = useQuery({
     queryKey: ["summary", filtersKey],
