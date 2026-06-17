@@ -2,15 +2,7 @@
 
 import { useState } from "react";
 import type { SlideCase } from "@/types/case";
-
-const IHC_STAINS = ["HER2", "ER", "PR", "KI67"];
-
-function stainMatches(classification: string | undefined, caseStain: string): boolean {
-  if (!classification || classification === "uncertain") return false;
-  if (classification === "HE") return caseStain === "HE";
-  if (classification.startsWith("IHC")) return IHC_STAINS.includes(caseStain);
-  return classification === caseStain;
-}
+import { stainMatches } from "@/lib/qc-utils";
 
 function MatchText({ match, label }: { match: boolean; label: string }) {
   return (

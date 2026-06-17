@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { SlideCase, CaseStatus } from "@/types/case";
+import { stainMatches } from "@/lib/qc-utils";
 
 interface Props {
   cases: SlideCase[];
@@ -116,15 +117,6 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
         </span>
       </div>
     );
-  }
-
-  const IHC_STAINS = ["HER2", "ER", "PR", "KI67"];
-
-  function stainMatches(classification: string | undefined, caseStain: string): boolean {
-    if (!classification || classification === "uncertain") return false;
-    if (classification === "HE") return caseStain === "HE";
-    if (classification.startsWith("IHC")) return IHC_STAINS.includes(caseStain);
-    return classification === caseStain;
   }
 
   function AiLabel({ value, match }: { value: string; match: boolean }) {

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { SlideCase } from "@/types/case";
 import { addComment, updateComment, deleteComment } from "@/lib/api-client";
+import { stainMatches } from "@/lib/qc-utils";
 
 interface Props {
   slideCase: SlideCase;
@@ -191,15 +192,6 @@ function TagList({ items }: { items: string }) {
       ))}
     </div>
   );
-}
-
-const IHC_STAINS = ["HER2", "ER", "PR", "KI67"];
-
-function stainMatches(classification: string | undefined, caseStain: string): boolean {
-  if (!classification || classification === "uncertain") return false;
-  if (classification === "HE") return caseStain === "HE";
-  if (classification.startsWith("IHC")) return IHC_STAINS.includes(caseStain);
-  return classification === caseStain;
 }
 
 export function CaseDetail({ slideCase, onClose, onCommentAdded }: Props) {
