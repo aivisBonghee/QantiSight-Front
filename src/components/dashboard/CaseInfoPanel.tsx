@@ -12,15 +12,10 @@ function stainMatches(classification: string | undefined, caseStain: string): bo
   return classification === caseStain;
 }
 
-function MatchBadge({ match, label }: { match: boolean; label: string }) {
+function MatchText({ match, label }: { match: boolean; label: string }) {
   return (
-    <span
-      className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full ${
-        match ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"
-      }`}
-    >
-      {label}
-      <span className="text-[9px]">{match ? "✓" : "✗"}</span>
+    <span className={`text-[12px] font-bold ${match ? "text-emerald-600" : "text-red-600"}`}>
+      {label} ({match ? "일치" : "불일치"})
     </span>
   );
 }
@@ -116,7 +111,7 @@ export function CaseInfoPanel({ slideCase, onClose }: Props) {
               value={
                 qc ? (
                   <div className="flex items-center gap-1.5">
-                    <MatchBadge match={qc.organMatch} label={qc.detectedOrgan} />
+                    <MatchText match={qc.organMatch} label={qc.detectedOrgan} />
                     <span className="text-[9px] text-gray-400">의뢰: {slideCase.organ}</span>
                   </div>
                 ) : (
@@ -130,7 +125,7 @@ export function CaseInfoPanel({ slideCase, onClose }: Props) {
               value={
                 qc ? (
                   <div className="flex items-center gap-1.5">
-                    <MatchBadge
+                    <MatchText
                       match={stainMatches(qc.stainClassification, slideCase.stainType)}
                       label={qc.stainClassification}
                     />

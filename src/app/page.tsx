@@ -164,17 +164,6 @@ function Dashboard() {
               selected ? "flex-1 min-w-0" : "flex-1"
             }`}
           >
-            {/* 상단: 케이스 정보 패널 */}
-            {selected && (
-              <div className="shrink-0 mb-3 md:mb-4 w-full">
-                <CaseInfoPanel
-                  key={selected.id}
-                  slideCase={selected}
-                  onClose={() => setSelected(null)}
-                />
-              </div>
-            )}
-
             {/* 상단 고정 영역: 요약카드 + 검색바 */}
             <div className="shrink-0 flex flex-col gap-3 md:gap-4 w-full">
               <SummaryCards summary={summary ?? {
@@ -186,6 +175,18 @@ function Dashboard() {
               }} />
               <SearchBar totalCount={casesData?.total ?? 0} />
             </div>
+
+            {/* 케이스 정보 패널: 검색바와 테이블 사이 */}
+            {selected && (
+              <div className="shrink-0 mt-3 md:mt-4 w-full">
+                <CaseInfoPanel
+                  key={selected.id}
+                  slideCase={selected}
+                  onClose={() => setSelected(null)}
+                />
+              </div>
+            )}
+
             {/* 테이블 영역: 남은 공간 채우며 내부 스크롤 */}
             <div className="flex-1 overflow-hidden mt-3 md:mt-4 w-full">
               {isLoading ? (
