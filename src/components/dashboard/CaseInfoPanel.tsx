@@ -199,7 +199,7 @@ export function CaseInfoPanel({ slideCase, onClose }: Props) {
 
           {/* Comments */}
           <div className="pt-2">
-            <div className="text-[9px] text-gray-500 font-medium mb-1">코멘트 ({slideCase.comments?.length ?? 0})</div>
+            <div className="text-[9px] text-gray-500 font-medium mb-1">코멘트</div>
             {slideCase.comments && slideCase.comments.length > 0 ? (
               <div className="flex flex-col gap-1 max-h-[60px] overflow-y-auto">
                 {slideCase.comments.map((c) => (
