@@ -285,7 +285,7 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
                   <TableCell className="py-1.5 whitespace-nowrap">
                     {!c.qcResult ? (
                       <span className="text-gray-400">-</span>
-                    ) : c.qcResult.organMatch && stainMatches(c.qcResult.stainClassification, c.stainType) ? (
+                    ) : c.qcResult.organMatch && stainMatches(c.qcResult.stainClassification, c.stainType) && c.qcResult.overallQcScore > 0 ? (
                       <span className="text-emerald-600 font-bold text-[12px]">적합</span>
                     ) : (
                       <span className="text-red-600 font-bold text-[12px]">부적합</span>
