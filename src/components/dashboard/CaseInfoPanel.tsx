@@ -198,9 +198,9 @@ export function CaseInfoPanel({ slideCase, onClose }: Props) {
           </div>
 
           {/* Comments */}
-          {slideCase.comments && slideCase.comments.length > 0 && (
-            <div className="pt-3">
-              <div className="text-[9px] text-gray-400 font-medium mb-1">코멘트 ({slideCase.comments.length})</div>
+          <div className="pt-2">
+            <div className="text-[9px] text-gray-500 font-medium mb-1">코멘트 ({slideCase.comments?.length ?? 0})</div>
+            {slideCase.comments && slideCase.comments.length > 0 ? (
               <div className="flex flex-col gap-1 max-h-[60px] overflow-y-auto">
                 {slideCase.comments.map((c) => (
                   <div key={c.id} className="text-[11px] text-gray-700 bg-gray-50 rounded px-2 py-1">
@@ -209,8 +209,10 @@ export function CaseInfoPanel({ slideCase, onClose }: Props) {
                   </div>
                 ))}
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="text-[11px] font-bold text-gray-900">-</div>
+            )}
+          </div>
         </div>
 
         {/* Right: Thumbnail */}
