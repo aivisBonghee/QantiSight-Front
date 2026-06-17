@@ -4,7 +4,7 @@ import { useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import { useUploadStore, type UploadItem } from "@/hooks/useUploadStore";
 
-const ACCEPTED = ".svs,.isyntax,.i2syntax,.tiff,.tif,.ndpi,.mrxs,.scn,.bif,.vsi,.dcm";
+const ACCEPTED = ".svs,.tiff,.tif,.ndpi,.mrxs,.scn,.bif,.vsi,.dcm";
 const ORGANS = ["Stomach", "Colon", "Breast", "Lung", "Kidney"];
 const STAINS = ["HE", "HER2", "ER", "PR", "KI67"];
 
@@ -172,7 +172,7 @@ export default function UploadPage() {
                 </svg>
               </div>
               <p className="text-sm font-semibold text-gray-800">파일을 드래그하거나 클릭하여 선택</p>
-              <p className="text-xs text-gray-500">SVS, iSyntax, TIFF, NDPI, MRXS, SCN, BIF, VSI, DCM · 여러 파일 동시 선택 가능</p>
+              <p className="text-xs text-gray-500">SVS, TIFF, NDPI, MRXS, SCN, BIF, VSI, DCM · 여러 파일 동시 선택 가능</p>
             </div>
           </div>
 
