@@ -94,18 +94,17 @@ export function CaseInfoPanel({ slideCase, onClose }: Props) {
         {/* Left: Info grid */}
         <div className="flex-1 min-w-0">
           {/* Row 1: Patient info */}
-          <div className="grid grid-cols-7 gap-x-4 gap-y-2 pb-3 border-b border-gray-100">
+          <div className="grid grid-cols-6 gap-x-4 gap-y-2 pb-3 border-b border-gray-100">
             <Field label="조직번호" value={slideCase.specimenNo || slideCase.slideId} />
             <Field label="환자명" value={slideCase.patientName} />
+            <Field label="차트번호" value={slideCase.patientId} />
             <Field label="나이" value="-" />
             <Field label="성별" value="-" />
             <Field label="접수일자" value={slideCase.examDate} />
-            <Field label="차트번호" value={slideCase.patientId} />
-            <Field label="병원" value={slideCase.hospitalCode} />
           </div>
 
           {/* Row 2: QC info */}
-          <div className="grid grid-cols-7 gap-x-4 gap-y-2 pt-3 pb-3 border-b border-gray-100">
+          <div className="grid grid-cols-6 gap-x-4 gap-y-2 pt-3 pb-3 border-b border-gray-100">
             <Field
               label="장기"
               value={
@@ -182,11 +181,11 @@ export function CaseInfoPanel({ slideCase, onClose }: Props) {
                 )
               }
             />
-            <Field label="판독의사" value={slideCase.pathologist} />
+            <Field label="판독의" value={slideCase.pathologist} />
           </div>
 
           {/* Row 3: Lesion detail + Diagnosis */}
-          <div className="grid grid-cols-7 gap-x-4 gap-y-2 pt-3">
+          <div className="grid grid-cols-6 gap-x-4 gap-y-2 pt-3 pb-3 border-b border-gray-100">
             {lesionDetail ? (
               <>
                 {lesionDetail.n_tumor_cells != null && (
@@ -201,14 +200,27 @@ export function CaseInfoPanel({ slideCase, onClose }: Props) {
                 {lesionDetail.tissue_area_mm2 != null && (
                   <Field label="조직 면적" value={`${lesionDetail.tissue_area_mm2.toFixed(1)} mm²`} />
                 )}
+                <Field label="진단" value={slideCase.diagnosis} className="col-span-2" />
               </>
-            ) : null}
-            <Field
-              label="진단"
-              value={slideCase.diagnosis}
-              className={lesionDetail ? "col-span-3" : "col-span-7"}
-            />
+            ) : (
+              <Field label="진단" value={slideCase.diagnosis} className="col-span-6" />
+            )}
           </div>
+
+          {/* Row 4: Comments */}
+          {slideCase.comments && slideCase.comments.length > 0 && (
+            <div className="pt-3">
+              <div className="text-[9px] text-gray-400 font-medium mb-1">코멘트 ({slideCase.comments.length})</div>
+              <div className="flex flex-col gap-1 max-h-[60px] overflow-y-auto">
+                {slideCase.comments.map((c) => (
+                  <div key={c.id} className="text-[11px] text-gray-700 bg-gray-50 rounded px-2 py-1">
+                    <span className="font-medium">{c.content}</span>
+                    <span className="text-[9px] text-gray-400 ml-2">{c.author} · {c.createdAt ? new Date(c.createdAt).toLocaleString("ko-KR") : ""}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Right: Thumbnail */}

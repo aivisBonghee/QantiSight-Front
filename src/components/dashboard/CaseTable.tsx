@@ -178,7 +178,7 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
                   { key: "slideId", label: "검체번호", sort: true, w: "min-w-[150px]", align: "text-left" },
                   { key: "date", label: "업로드 일자", sort: true, w: "w-[110px]" },
                   { key: "status", label: "상태", sort: false, w: "w-[90px]" },
-                  { key: "patient", label: "환자 / 케이스", sort: true, w: "w-[130px]" },
+                  { key: "patient", label: "환자 / 차트번호", sort: true, w: "w-[130px]" },
                   { key: "pathologist", label: "판독의", sort: false, w: "w-[90px]" },
                   { key: "organ", label: "장기", sort: true, w: "w-[80px]" },
                   { key: "organMatch", label: "AI 장기", sort: false, w: "w-[75px]" },

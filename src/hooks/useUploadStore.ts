@@ -9,6 +9,7 @@ export interface UploadItem {
   patientName: string;
   organ: string;
   stainType: string;
+  pathologist: string;
   progress: number;
   status: "pending" | "uploading" | "done" | "error";
   caseId?: string;
@@ -52,6 +53,7 @@ export const useUploadStore = create<UploadStore>((set, get) => ({
       patientName: "",
       organ: "",
       stainType: "",
+      pathologist: "",
       progress: 0,
       status: "pending" as const,
     }));
@@ -82,6 +84,7 @@ export const useUploadStore = create<UploadStore>((set, get) => ({
             patientName: match.patientName || item.patientName,
             organ: match.organ || item.organ,
             stainType: match.stainType || item.stainType,
+            pathologist: match.pathologist || item.pathologist,
           };
         }
         return item;
@@ -118,6 +121,7 @@ function uploadSingle(
   if (item.patientName) formData.append("patient_name", item.patientName);
   if (item.organ) formData.append("organ", item.organ);
   if (item.stainType) formData.append("stain_type", item.stainType);
+  if (item.pathologist) formData.append("pathologist", item.pathologist);
 
   const xhr = new XMLHttpRequest();
 

@@ -42,10 +42,11 @@ function parseCSVMapping(text: string): Map<string, Partial<UploadItem>> {
 
   const headers = splitCSVRow(lines[0]).map((h) => h.toLowerCase().replace(/\s/g, ""));
   const iSlide = findCol(headers, "검체번호", "slide_id", "검체");
-  const iPid = findCol(headers, "환자id", "patient_id", "환자번호");
+  const iPid = findCol(headers, "차트번호", "환자id", "patient_id", "환자번호");
   const iName = findCol(headers, "환자명", "patient_name", "이름");
   const iOrgan = findCol(headers, "장기", "organ");
   const iStain = findCol(headers, "염색", "stain_type", "stain");
+  const iPathologist = findCol(headers, "판독의", "pathologist");
 
   for (let i = 1; i < lines.length; i++) {
     if (!lines[i].trim()) continue;
@@ -57,6 +58,7 @@ function parseCSVMapping(text: string): Map<string, Partial<UploadItem>> {
       patientName: colVal(cols, iName),
       organ: colVal(cols, iOrgan),
       stainType: colVal(cols, iStain),
+      pathologist: colVal(cols, iPathologist),
     });
   }
   return map;
@@ -103,12 +105,12 @@ export default function UploadPage() {
   };
 
   const downloadTemplate = () => {
-    const header = "검체번호,환자ID,환자명,장기,염색";
+    const header = "검체번호,차트번호,환자명,장기,염색,판독의";
     const rows = items
       .filter((f) => f.status === "pending")
       .map((f) => {
         const sid = f.specimenNo.includes(",") ? `"${f.specimenNo}"` : f.specimenNo;
-        return `${sid},,,,`;
+        return `${sid},,,,,`;
       });
     const csv = [header, ...rows].join("\n");
     const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
@@ -303,9 +305,9 @@ export default function UploadPage() {
                             className="w-full h-7 px-2 rounded border text-xs font-mono" />
                         </div>
                         <div>
-                          <label className="text-[10px] text-gray-400 uppercase">환자 ID</label>
+                          <label className="text-[10px] text-gray-400 uppercase">차트번호</label>
                           <input value={uf.patientId} onChange={(e) => updateItem(uf.id, { patientId: e.target.value })}
-                            className="w-full h-7 px-2 rounded border text-xs" placeholder="P-2026..." />
+                            className="w-full h-7 px-2 rounded border text-xs" placeholder="차트번호" />
                         </div>
                         <div>
                           <label className="text-[10px] text-gray-400 uppercase">환자명</label>
@@ -327,6 +329,11 @@ export default function UploadPage() {
                             <option value="">선택</option>
                             {STAINS.map((s) => <option key={s} value={s}>{s}</option>)}
                           </select>
+                        </div>
+                        <div>
+                          <label className="text-[10px] text-gray-400 uppercase">판독의</label>
+                          <input value={uf.pathologist} onChange={(e) => updateItem(uf.id, { pathologist: e.target.value })}
+                            className="w-full h-7 px-2 rounded border text-xs" placeholder="판독의" />
                         </div>
                       </div>
                     )}
