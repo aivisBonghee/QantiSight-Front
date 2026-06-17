@@ -491,9 +491,9 @@ export function CaseDetail({ slideCase, onClose, onCommentAdded }: Props) {
                   {(qc.lesionAreaRatio * 100).toFixed(1)}%
                 </span>
                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full mb-1 ${
-                  qc.lesionVolume === "Low" ? "bg-emerald-100 text-emerald-700"
+                  qc.lesionVolume === "Low" ? "bg-red-100 text-red-700"
                   : qc.lesionVolume === "Moderate" ? "bg-amber-100 text-amber-700"
-                  : "bg-red-100 text-red-700"
+                  : "bg-emerald-100 text-emerald-700"
                 }`}>
                   {qc.lesionVolume}
                 </span>
@@ -501,9 +501,9 @@ export function CaseDetail({ slideCase, onClose, onCommentAdded }: Props) {
               <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all duration-1000 ease-out ${
-                    qc.lesionVolume === "Low" ? "bg-emerald-500"
+                    qc.lesionVolume === "Low" ? "bg-red-500"
                     : qc.lesionVolume === "Moderate" ? "bg-amber-500"
-                    : "bg-red-500"
+                    : "bg-emerald-500"
                   }`}
                   style={{ width: `${qc.lesionAreaRatio * 100}%` }}
                 />

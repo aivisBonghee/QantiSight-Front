@@ -23,8 +23,8 @@ function MatchText({ match, label }: { match: boolean; label: string }) {
 function Field({ label, value, className }: { label: string; value: React.ReactNode; className?: string }) {
   return (
     <div className={className}>
-      <div className="text-[9px] text-gray-400 font-medium mb-0.5">{label}</div>
-      <div className="text-[12px] font-semibold text-gray-800 truncate">{value || "-"}</div>
+      <div className="text-[9px] text-gray-500 font-medium mb-0.5">{label}</div>
+      <div className="text-[12px] font-bold text-gray-900 truncate">{value || "-"}</div>
     </div>
   );
 }
@@ -94,17 +94,15 @@ export function CaseInfoPanel({ slideCase, onClose }: Props) {
         {/* Left: Info grid */}
         <div className="flex-1 min-w-0">
           {/* Row 1: Patient info */}
-          <div className="grid grid-cols-6 gap-x-4 gap-y-2 pb-3 border-b border-gray-100">
+          <div className="grid grid-cols-4 gap-x-6 gap-y-2 pb-3 border-b border-gray-100">
             <Field label="조직번호" value={slideCase.specimenNo || slideCase.slideId} />
             <Field label="환자명" value={slideCase.patientName} />
             <Field label="차트번호" value={slideCase.patientId} />
-            <Field label="나이" value="-" />
-            <Field label="성별" value="-" />
             <Field label="접수일자" value={slideCase.examDate} />
           </div>
 
           {/* Row 2: QC info */}
-          <div className="grid grid-cols-6 gap-x-4 gap-y-2 pt-3 pb-3 border-b border-gray-100">
+          <div className="grid grid-cols-4 gap-x-6 gap-y-2 pt-3 pb-3 border-b border-gray-100">
             <Field
               label="장기"
               value={
@@ -117,7 +115,6 @@ export function CaseInfoPanel({ slideCase, onClose }: Props) {
                   slideCase.organ
                 )
               }
-              className="col-span-2"
             />
             <Field
               label="염색"
@@ -134,7 +131,6 @@ export function CaseInfoPanel({ slideCase, onClose }: Props) {
                   slideCase.stainType
                 )
               }
-              className="col-span-2"
             />
             <Field
               label="QC 점수"
@@ -166,10 +162,10 @@ export function CaseInfoPanel({ slideCase, onClose }: Props) {
                       <span
                         className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${
                           qc.lesionVolume === "Low"
-                            ? "bg-emerald-100 text-emerald-700"
+                            ? "bg-red-100 text-red-700"
                             : qc.lesionVolume === "Moderate"
                             ? "bg-amber-100 text-amber-700"
-                            : "bg-red-100 text-red-700"
+                            : "bg-emerald-100 text-emerald-700"
                         }`}
                       >
                         {qc.lesionVolume}
@@ -181,11 +177,11 @@ export function CaseInfoPanel({ slideCase, onClose }: Props) {
                 )
               }
             />
-            <Field label="판독의" value={slideCase.pathologist} />
           </div>
 
-          {/* Row 3: Lesion detail + Diagnosis */}
-          <div className="grid grid-cols-6 gap-x-4 gap-y-2 pt-3 pb-3 border-b border-gray-100">
+          {/* Row 3: Detail info */}
+          <div className="grid grid-cols-4 gap-x-6 gap-y-2 pt-3 pb-3 border-b border-gray-100">
+            <Field label="판독의" value={slideCase.pathologist} />
             {lesionDetail ? (
               <>
                 {lesionDetail.n_tumor_cells != null && (
@@ -197,14 +193,13 @@ export function CaseInfoPanel({ slideCase, onClose }: Props) {
                 {lesionDetail.tumor_cell_fraction != null && (
                   <Field label="종양 비율" value={`${(lesionDetail.tumor_cell_fraction * 100).toFixed(1)}%`} />
                 )}
-                {lesionDetail.tissue_area_mm2 != null && (
-                  <Field label="조직 면적" value={`${lesionDetail.tissue_area_mm2.toFixed(1)} mm²`} />
-                )}
-                <Field label="진단" value={slideCase.diagnosis} className="col-span-2" />
               </>
-            ) : (
-              <Field label="진단" value={slideCase.diagnosis} className="col-span-6" />
-            )}
+            ) : null}
+          </div>
+
+          {/* Row 4: Diagnosis */}
+          <div className="pt-3 pb-3 border-b border-gray-100">
+            <Field label="진단" value={slideCase.diagnosis} />
           </div>
 
           {/* Row 4: Comments */}
