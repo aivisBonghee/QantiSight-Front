@@ -70,6 +70,12 @@ function Dashboard() {
     queryKey: ["cases", filtersKey, page, sortBy, sortDir],
     queryFn: () => fetchCases(filters, page, pageSize, sortBy, sortDir),
     placeholderData: (prev) => prev,
+    refetchInterval: (query) => {
+      const hasProcessing = query.state.data?.items.some(
+        (c) => c.status === "PROCESSING" || c.status === "WAITING"
+      );
+      return hasProcessing ? 5000 : false;
+    },
   });
 
   const casesData = rawCasesData;
@@ -78,6 +84,12 @@ function Dashboard() {
     queryKey: ["summary", filtersKey],
     queryFn: () => fetchSummary(filters),
     placeholderData: (prev) => prev,
+    refetchInterval: (query) => {
+      const hasProcessing = rawCasesData?.items.some(
+        (c) => c.status === "PROCESSING" || c.status === "WAITING"
+      );
+      return hasProcessing ? 5000 : false;
+    },
   });
 
   const handlePageChange = (newPage: number) => {
