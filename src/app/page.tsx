@@ -9,6 +9,7 @@ import { SummaryCards } from "@/components/dashboard/SummaryCards";
 import { SearchBar } from "@/components/dashboard/SearchBar";
 import { CaseTable } from "@/components/dashboard/CaseTable";
 import { CaseDetail } from "@/components/dashboard/CaseDetail";
+import { CaseInfoPanel } from "@/components/dashboard/CaseInfoPanel";
 import { fetchCases, fetchSummary } from "@/lib/api-client";
 import { useFilters } from "@/hooks/useFilters";
 import type { SlideCase } from "@/types/case";
@@ -163,6 +164,17 @@ function Dashboard() {
               selected ? "flex-1 min-w-0" : "flex-1"
             }`}
           >
+            {/* 상단: 케이스 정보 패널 */}
+            {selected && (
+              <div className="shrink-0 mb-3 md:mb-4 w-full">
+                <CaseInfoPanel
+                  key={selected.id}
+                  slideCase={selected}
+                  onClose={() => setSelected(null)}
+                />
+              </div>
+            )}
+
             {/* 상단 고정 영역: 요약카드 + 검색바 */}
             <div className="shrink-0 flex flex-col gap-3 md:gap-4 w-full">
               <SummaryCards summary={summary ?? {
@@ -201,28 +213,7 @@ function Dashboard() {
             </div>
           </main>
 
-          {selected && (
-            <>
-              <div
-                className="fixed inset-0 bg-black/30 z-20 lg:hidden"
-                onClick={() => setSelected(null)}
-              />
-              <aside
-                className="
-                  fixed right-0 top-0 h-full w-full sm:w-[400px] z-30
-                  lg:relative lg:w-[420px] lg:z-auto
-                  shrink-0 border-l bg-white overflow-y-auto
-                  animate-in slide-in-from-right duration-300
-                "
-              >
-                <CaseDetail
-                  key={selected.id}
-                  slideCase={selected}
-                  onClose={() => setSelected(null)}
-                />
-              </aside>
-            </>
-          )}
+          {/* CaseDetail은 CaseInfoPanel로 대체됨 */}
         </div>
       </div>
     </div>
