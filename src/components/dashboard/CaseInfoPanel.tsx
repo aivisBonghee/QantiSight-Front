@@ -200,18 +200,20 @@ export function CaseInfoPanel({ slideCase, onClose }: Props) {
           {/* Comments */}
           <div className="pt-2">
             <div className="text-[9px] text-gray-500 font-medium mb-1">코멘트</div>
-            {slideCase.comments && slideCase.comments.length > 0 ? (
-              <div className="flex flex-col gap-1 max-h-[60px] overflow-y-auto">
-                {slideCase.comments.map((c) => (
-                  <div key={c.id} className="text-[11px] text-gray-700 bg-gray-50 rounded px-2 py-1">
-                    <span className="font-medium">{c.content}</span>
-                    <span className="text-[9px] text-gray-400 ml-2">{c.author} · {c.createdAt ? new Date(c.createdAt).toLocaleString("ko-KR") : ""}</span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-[11px] font-bold text-gray-900">-</div>
-            )}
+            <div className="h-[28px] overflow-y-auto">
+              {slideCase.comments && slideCase.comments.length > 0 ? (
+                <div className="flex flex-col gap-1">
+                  {slideCase.comments.map((c) => (
+                    <div key={c.id} className="text-[11px] text-gray-700 bg-gray-50 rounded px-2 py-1">
+                      <span className="font-medium">{c.content}</span>
+                      <span className="text-[9px] text-gray-400 ml-2">{c.author} · {c.createdAt ? new Date(c.createdAt).toLocaleString("ko-KR") : ""}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-[11px] font-bold text-gray-900">-</div>
+              )}
+            </div>
           </div>
         </div>
 
