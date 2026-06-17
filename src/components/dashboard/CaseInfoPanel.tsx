@@ -47,7 +47,7 @@ export function CaseInfoPanel({ slideCase, onClose }: Props) {
   }
 
   return (
-    <div className="shrink-0 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden animate-in slide-in-from-top duration-300">
+    <div className="shrink-0 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
       {/* Header bar */}
       <div className="flex items-center justify-between px-4 py-2 bg-[#2d5a87]">
         <div className="flex items-center gap-3">
@@ -90,11 +90,11 @@ export function CaseInfoPanel({ slideCase, onClose }: Props) {
       </div>
 
       {/* Content */}
-      <div className="flex gap-4 p-4">
+      <div className="flex gap-4 px-4 py-3">
         {/* Left: Info grid */}
         <div className="flex-1 min-w-0">
           {/* Row 1: Patient info */}
-          <div className="grid grid-cols-4 gap-x-6 gap-y-2 pb-3 border-b border-gray-100">
+          <div className="grid grid-cols-4 gap-x-6 gap-y-1.5 pb-2 border-b border-gray-100">
             <Field label="조직번호" value={slideCase.specimenNo || slideCase.slideId} />
             <Field label="환자명" value={slideCase.patientName} />
             <Field label="차트번호" value={slideCase.patientId} />
@@ -102,7 +102,7 @@ export function CaseInfoPanel({ slideCase, onClose }: Props) {
           </div>
 
           {/* Row 2: QC info */}
-          <div className="grid grid-cols-4 gap-x-6 gap-y-2 pt-3 pb-3 border-b border-gray-100">
+          <div className="grid grid-cols-4 gap-x-6 gap-y-1.5 pt-2 pb-2 border-b border-gray-100">
             <Field
               label="장기"
               value={
@@ -180,7 +180,7 @@ export function CaseInfoPanel({ slideCase, onClose }: Props) {
           </div>
 
           {/* Row 3: Detail info */}
-          <div className="grid grid-cols-4 gap-x-6 gap-y-2 pt-3 pb-3 border-b border-gray-100">
+          <div className="grid grid-cols-4 gap-x-6 gap-y-1.5 pt-2 pb-2 border-b border-gray-100">
             <Field label="판독의" value={slideCase.pathologist} />
             {lesionDetail ? (
               <>
@@ -197,12 +197,7 @@ export function CaseInfoPanel({ slideCase, onClose }: Props) {
             ) : null}
           </div>
 
-          {/* Row 4: Diagnosis */}
-          <div className="pt-3 pb-3 border-b border-gray-100">
-            <Field label="진단" value={slideCase.diagnosis} />
-          </div>
-
-          {/* Row 4: Comments */}
+          {/* Comments */}
           {slideCase.comments && slideCase.comments.length > 0 && (
             <div className="pt-3">
               <div className="text-[9px] text-gray-400 font-medium mb-1">코멘트 ({slideCase.comments.length})</div>
