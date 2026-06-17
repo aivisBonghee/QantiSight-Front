@@ -159,7 +159,7 @@ export function FilterPanel({ totalCount, onClose, onCollapse }: Props) {
             }`}
           >
             <span className={`w-2 h-2 rounded-full ${hasIssue ? "bg-white" : "bg-red-400"}`} />
-            주의 필요
+            부적합
           </button>
         </div>
 
