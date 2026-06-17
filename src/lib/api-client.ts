@@ -37,6 +37,8 @@ interface ApiCaseResponse {
     stain_confidence: number | null;
     lesion_area_ratio: number | null;
     lesion_volume: string | null;
+    lesion_detail: string | null;
+    heatmap_path: string | null;
     control_tissue_present: boolean | null;
     control_tissue_confidence: number | null;
     analyzed_at: string | null;
@@ -89,6 +91,8 @@ function mapCase(c: ApiCaseResponse): SlideCase {
           stainConfidence: c.qc_result.stain_confidence ?? 0,
           lesionAreaRatio: c.qc_result.lesion_area_ratio,
           lesionVolume: c.qc_result.lesion_volume as QcResult["lesionVolume"],
+          lesionDetail: c.qc_result.lesion_detail,
+          heatmapPath: c.qc_result.heatmap_path,
           controlTissuePresent: c.qc_result.control_tissue_present,
           controlTissueConfidence: c.qc_result.control_tissue_confidence,
           analyzedAt: c.qc_result.analyzed_at ?? "",

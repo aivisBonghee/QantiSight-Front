@@ -82,6 +82,7 @@ export interface QcResult {
   lesionAreaRatio: number | null;
   lesionVolume: LesionVolume | null;
   lesionDetail?: string | null;
+  heatmapPath?: string | null;
   controlTissuePresent: boolean | null;
   controlTissueConfidence: number | null;
   analyzedAt: string;

@@ -211,6 +211,7 @@ export function CaseDetail({ slideCase, onClose, onCommentAdded }: Props) {
   const [localComments, setLocalComments] = useState(slideCase.comments ?? []);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
+  const [showHeatmap, setShowHeatmap] = useState(false);
 
   useEffect(() => {
     setLocalComments(slideCase.comments ?? []);
@@ -328,6 +329,25 @@ export function CaseDetail({ slideCase, onClose, onCommentAdded }: Props) {
                 alt={slideCase.slideId}
                 className="w-full h-full object-cover"
               />
+              {showHeatmap && qc?.heatmapPath && (
+                <img
+                  src={qc.heatmapPath}
+                  alt="Cell density heatmap"
+                  className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
+                />
+              )}
+              {qc?.heatmapPath && (
+                <button
+                  onClick={() => setShowHeatmap((v) => !v)}
+                  className={`absolute top-2 left-2 text-[10px] font-bold px-2 py-1 rounded-lg shadow-md transition-colors ${
+                    showHeatmap
+                      ? "bg-[#1a3a5c] text-white"
+                      : "bg-white/90 text-[#1a3a5c] hover:bg-white"
+                  }`}
+                >
+                  {showHeatmap ? "Heatmap OFF" : "Heatmap ON"}
+                </button>
+              )}
               {qc && (
                 <div
                   className="absolute top-2 right-2 w-11 h-11 rounded-xl flex flex-col items-center justify-center shadow-lg"
