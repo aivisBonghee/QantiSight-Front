@@ -314,6 +314,29 @@ export function CaseInfoPanel({ slideCase, onClose, onCommentAdded }: Props) {
                   className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
                 />
               )}
+              {qc?.controlPieces && qc.controlPieces.length > 0 && !showHeatmap && (
+                <svg className="absolute inset-0 w-full h-full pointer-events-none">
+                  {qc.controlPieces.map((piece, i) => {
+                    const b = (piece as Record<string, unknown>).bbox_pct as number[] | undefined;
+                    if (!b) return null;
+                    return (
+                      <rect
+                        key={i}
+                        x={`${b[0] * 100}%`}
+                        y={`${b[1] * 100}%`}
+                        width={`${(b[2] - b[0]) * 100}%`}
+                        height={`${(b[3] - b[1]) * 100}%`}
+                        fill="none"
+                        stroke="#22d3ee"
+                        strokeWidth="2"
+                        strokeDasharray="4 2"
+                        rx="2"
+                      />
+                    );
+                  })}
+                  <text x="4" y="12" fontSize="8" fill="#22d3ee" fontWeight="bold">Control</text>
+                </svg>
+              )}
               {qc?.heatmapPath && (
                 <button
                   onClick={() => setShowHeatmap((v) => !v)}
