@@ -86,20 +86,17 @@ export function CaseInfoPanel({ slideCase, onClose }: Props) {
         {/* Left: Info grid */}
         <div className="flex-1 min-w-0">
           {/* Row 1: Patient info */}
-          <div className="grid grid-cols-4 gap-x-6 gap-y-1.5 pb-2 border-b border-gray-100">
+          <div className="grid grid-cols-6 gap-x-4 gap-y-1.5 pb-2 border-b border-gray-100">
             <Field label="조직번호" value={slideCase.specimenNo || slideCase.slideId} />
-            <Field label="환자명" value={
-              <span>
-                {slideCase.patientName || "-"}
-                {(slideCase.patientAge || slideCase.patientGender) && (
-                  <span className="text-[10px] text-gray-400 ml-1">
-                    ({[slideCase.patientGender, slideCase.patientAge ? `${slideCase.patientAge}세` : null].filter(Boolean).join("/")})
-                  </span>
-                )}
-              </span>
+            <Field label="환자명" value={slideCase.patientName} />
+            <Field label="나이/성별" value={
+              slideCase.patientAge || slideCase.patientGender
+                ? [slideCase.patientAge ? `${slideCase.patientAge}세` : null, slideCase.patientGender].filter(Boolean).join(" / ")
+                : "-"
             } />
             <Field label="차트번호" value={slideCase.patientId} />
             <Field label="접수일자" value={slideCase.examDate} />
+            <Field label="판독의" value={slideCase.pathologist} />
           </div>
 
           {/* Row 2: QC info */}
@@ -182,7 +179,6 @@ export function CaseInfoPanel({ slideCase, onClose }: Props) {
 
           {/* Row 3: Detail info */}
           <div className="grid grid-cols-4 gap-x-6 gap-y-1.5 pt-2 pb-2 border-b border-gray-100">
-            <Field label="판독의" value={slideCase.pathologist} />
             {lesionDetail ? (
               <>
                 {lesionDetail.n_tumor_cells != null && (

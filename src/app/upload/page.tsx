@@ -110,13 +110,14 @@ export default function UploadPage() {
 
   const downloadTemplate = () => {
     const header = "검체번호,차트번호,환자명,나이,성별,장기,염색,판독의";
+    const example = "예시_S24-12345,12345678,홍길동,65,M,Breast,HE,김의사";
     const rows = items
       .filter((f) => f.status === "pending")
       .map((f) => {
         const sid = f.specimenNo.includes(",") ? `"${f.specimenNo}"` : f.specimenNo;
         return `${sid},,,,,,,`;
       });
-    const csv = [header, ...rows].join("\n");
+    const csv = [header, example, ...rows].join("\n");
     const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
