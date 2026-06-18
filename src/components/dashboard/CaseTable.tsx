@@ -257,13 +257,27 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
                   </TableCell>
                   <TableCell className="py-1.5 whitespace-nowrap">
                     {c.qcResult ? (
-                      c.qcResult.controlTissuePresent === null ? (
-                        <span className="text-[11px] text-gray-400 italic">N/A</span>
-                      ) : c.qcResult.controlTissuePresent ? (
-                        <span className="text-[12px] font-semibold text-gray-900">발현</span>
-                      ) : (
-                        <span className="text-[12px] font-semibold text-red-600">미발현</span>
-                      )
+                      <span
+                        className={`text-[12px] font-semibold ${
+                          c.qcResult.controlTissueStatus === "present"
+                            ? "text-emerald-600"
+                            : c.qcResult.controlTissueStatus === "absent"
+                            ? "text-red-600"
+                            : c.qcResult.controlTissueStatus === "uncertain"
+                            ? "text-amber-600"
+                            : "text-gray-400 italic"
+                        }`}
+                      >
+                        {c.qcResult.controlTissueStatus === "present"
+                          ? "검출"
+                          : c.qcResult.controlTissueStatus === "absent"
+                          ? "미검출"
+                          : c.qcResult.controlTissueStatus === "uncertain"
+                          ? "불확실"
+                          : c.qcResult.controlTissueStatus === "n/a"
+                          ? "해당없음"
+                          : "-"}
+                      </span>
                     ) : (
                       <span className="text-gray-400">-</span>
                     )}
