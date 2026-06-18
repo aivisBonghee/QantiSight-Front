@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { SlideCase } from "@/types/case";
 import { stainMatches } from "@/lib/qc-utils";
+import { addComment, updateComment, deleteComment } from "@/lib/api-client";
 
 function MatchText({ match, label }: { match: boolean; label: string }) {
   return (
@@ -24,11 +25,16 @@ function Field({ label, value, className }: { label: string; value: React.ReactN
 interface Props {
   slideCase: SlideCase;
   onClose: () => void;
+  onCommentAdded?: () => void;
 }
 
-export function CaseInfoPanel({ slideCase, onClose }: Props) {
+export function CaseInfoPanel({ slideCase, onClose, onCommentAdded }: Props) {
   const qc = slideCase.qcResult;
   const [showHeatmap, setShowHeatmap] = useState(false);
+  const [commentText, setCommentText] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editText, setEditText] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   const isPass =
     qc && qc.organMatch && stainMatches(qc.stainClassification, slideCase.stainType) && qc.overallQcScore > 0;
@@ -197,13 +203,42 @@ export function CaseInfoPanel({ slideCase, onClose }: Props) {
           {/* Comments */}
           <div className="pt-2">
             <div className="text-[9px] text-gray-500 font-medium mb-1">코멘트</div>
-            <div className="h-[28px] overflow-y-auto">
+            <div className="max-h-[60px] overflow-y-auto mb-1.5">
               {slideCase.comments && slideCase.comments.length > 0 ? (
                 <div className="flex flex-col gap-1">
                   {slideCase.comments.map((c) => (
-                    <div key={c.id} className="text-[11px] text-gray-700 bg-gray-50 rounded px-2 py-1">
-                      <span className="font-medium">{c.content}</span>
-                      <span className="text-[9px] text-gray-400 ml-2">{c.author} · {c.createdAt ? new Date(c.createdAt).toLocaleString("ko-KR") : ""}</span>
+                    <div key={c.id} className="group flex items-center gap-1 text-[11px] text-gray-700 bg-gray-50 rounded px-2 py-1">
+                      {editingId === c.id ? (
+                        <form className="flex-1 flex items-center gap-1" onSubmit={async (e) => {
+                          e.preventDefault();
+                          if (!editText.trim()) return;
+                          setIsSaving(true);
+                          try {
+                            await updateComment(slideCase.id, c.id, editText.trim());
+                            setEditingId(null);
+                            onCommentAdded?.();
+                          } finally { setIsSaving(false); }
+                        }}>
+                          <input value={editText} onChange={(e) => setEditText(e.target.value)} autoFocus
+                            className="flex-1 h-5 px-1 rounded border text-[11px] outline-none" />
+                          <button type="submit" disabled={isSaving}
+                            className="text-[9px] text-blue-600 hover:underline cursor-pointer">저장</button>
+                          <button type="button" onClick={() => setEditingId(null)}
+                            className="text-[9px] text-gray-400 hover:underline cursor-pointer">취소</button>
+                        </form>
+                      ) : (
+                        <>
+                          <span className="font-medium flex-1">{c.content}</span>
+                          <span className="text-[9px] text-gray-400 shrink-0">{c.author}</span>
+                          <button onClick={() => { setEditingId(c.id); setEditText(c.content); }}
+                            className="text-[9px] text-gray-400 hover:text-blue-600 opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">수정</button>
+                          <button onClick={async () => {
+                            await deleteComment(slideCase.id, c.id);
+                            onCommentAdded?.();
+                          }}
+                            className="text-[9px] text-gray-400 hover:text-red-600 opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">삭제</button>
+                        </>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -211,6 +246,22 @@ export function CaseInfoPanel({ slideCase, onClose }: Props) {
                 <div className="text-[11px] font-bold text-gray-900">-</div>
               )}
             </div>
+            <form className="flex items-center gap-1" onSubmit={async (e) => {
+              e.preventDefault();
+              if (!commentText.trim()) return;
+              setIsSaving(true);
+              try {
+                await addComment(slideCase.id, commentText.trim());
+                setCommentText("");
+                onCommentAdded?.();
+              } finally { setIsSaving(false); }
+            }}>
+              <input value={commentText} onChange={(e) => setCommentText(e.target.value)}
+                placeholder="코멘트 입력..."
+                className="flex-1 h-6 px-2 rounded border border-gray-200 text-[11px] outline-none focus:border-[#355C94]" />
+              <button type="submit" disabled={!commentText.trim() || isSaving}
+                className="h-6 px-2 rounded bg-[#355C94] text-white text-[10px] font-bold disabled:opacity-40 cursor-pointer hover:bg-[#22487B] transition-colors">추가</button>
+            </form>
           </div>
         </div>
 

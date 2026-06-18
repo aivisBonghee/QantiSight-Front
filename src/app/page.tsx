@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Header } from "@/components/layout/Header";
 import { PanelLeftOpen } from "lucide-react";
 import { FilterPanel } from "@/components/layout/FilterPanel";
@@ -38,6 +38,7 @@ function usePageSize() {
 
 function Dashboard() {
   const filters = useFilters();
+  const qc = useQueryClient();
   const [selected, setSelected] = useState<SlideCase | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -183,6 +184,7 @@ function Dashboard() {
                   key={selected.id}
                   slideCase={selected}
                   onClose={() => setSelected(null)}
+                  onCommentAdded={() => qc.invalidateQueries({ queryKey: ["cases"] })}
                 />
               </div>
             )}
