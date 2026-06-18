@@ -87,6 +87,8 @@ export interface QcResult {
   heatmapPath?: string | null;
   controlTissuePresent: boolean | null;
   controlTissueConfidence: number | null;
+  controlTissueStatus: string | null;
+  controlPieces: Array<{ bbox: number[]; p: number }> | null;
   analyzedAt: string;
 }
 

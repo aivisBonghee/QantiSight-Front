@@ -43,6 +43,8 @@ interface ApiCaseResponse {
     heatmap_path: string | null;
     control_tissue_present: boolean | null;
     control_tissue_confidence: number | null;
+    control_tissue_status: string | null;
+    control_pieces: string | null;
     analyzed_at: string | null;
   } | null;
   comments: Array<{
@@ -99,6 +101,8 @@ function mapCase(c: ApiCaseResponse): SlideCase {
           heatmapPath: c.qc_result.heatmap_path,
           controlTissuePresent: c.qc_result.control_tissue_present,
           controlTissueConfidence: c.qc_result.control_tissue_confidence,
+          controlTissueStatus: c.qc_result.control_tissue_status,
+          controlPieces: c.qc_result.control_pieces ? JSON.parse(c.qc_result.control_pieces) : null,
           analyzedAt: c.qc_result.analyzed_at ?? "",
         }
       : null,

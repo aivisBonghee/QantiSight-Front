@@ -123,6 +123,8 @@ function generateQcResult(rand: () => number, diagnosis: string): QcResult {
     lesionVolume,
     controlTissuePresent,
     controlTissueConfidence,
+    controlTissueStatus: isIHC ? (controlTissuePresent ? "present" : "absent") : "n/a",
+    controlPieces: null,
     analyzedAt: "2026-06-03T10:00:00Z",
   };
 }

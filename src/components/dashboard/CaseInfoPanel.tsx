@@ -106,7 +106,7 @@ export function CaseInfoPanel({ slideCase, onClose, onCommentAdded }: Props) {
           </div>
 
           {/* Row 2: QC info */}
-          <div className="grid grid-cols-4 gap-x-6 gap-y-1.5 pt-2 pb-2 border-b border-gray-100">
+          <div className="grid grid-cols-5 gap-x-6 gap-y-1.5 pt-2 pb-2 border-b border-gray-100">
             <Field
               label="장기"
               value={
@@ -176,6 +176,39 @@ export function CaseInfoPanel({ slideCase, onClose, onCommentAdded }: Props) {
                       </span>
                     )}
                   </div>
+                ) : (
+                  "-"
+                )
+              }
+            />
+            <Field
+              label="컨트롤 티슈"
+              value={
+                qc?.controlTissueStatus ? (
+                  <span
+                    className={`text-[12px] font-bold ${
+                      qc.controlTissueStatus === "present"
+                        ? "text-emerald-600"
+                        : qc.controlTissueStatus === "absent"
+                        ? "text-red-600"
+                        : qc.controlTissueStatus === "uncertain"
+                        ? "text-amber-600"
+                        : "text-gray-400"
+                    }`}
+                  >
+                    {qc.controlTissueStatus === "present"
+                      ? "검출"
+                      : qc.controlTissueStatus === "absent"
+                      ? "미검출"
+                      : qc.controlTissueStatus === "uncertain"
+                      ? "불확실"
+                      : "해당없음"}
+                    {qc.controlPieces && qc.controlPieces.length > 0 && (
+                      <span className="text-[9px] text-gray-400 font-normal ml-1">
+                        ({qc.controlPieces.length}개, {Math.round(qc.controlPieces[0].p * 100)}%)
+                      </span>
+                    )}
+                  </span>
                 ) : (
                   "-"
                 )
