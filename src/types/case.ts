@@ -31,6 +31,8 @@ export interface SlideCase {
   hospitalCode: HospitalCode;
   patientId: string;
   patientName: string;
+  patientAge?: number | null;
+  patientGender?: string | null;
   examNo: string;
   examDate: string;
   organ: OrganType;

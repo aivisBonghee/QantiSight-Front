@@ -46,6 +46,8 @@ function parseCSVMapping(text: string): Map<string, Partial<UploadItem>> {
   const iName = findCol(headers, "환자명", "patient_name", "이름");
   const iOrgan = findCol(headers, "장기", "organ");
   const iStain = findCol(headers, "염색", "stain_type", "stain");
+  const iAge = findCol(headers, "나이", "age", "patient_age");
+  const iGender = findCol(headers, "성별", "gender", "patient_gender");
   const iPathologist = findCol(headers, "판독의", "pathologist");
 
   for (let i = 1; i < lines.length; i++) {
@@ -56,6 +58,8 @@ function parseCSVMapping(text: string): Map<string, Partial<UploadItem>> {
     map.set(slideId, {
       patientId: colVal(cols, iPid),
       patientName: colVal(cols, iName),
+      patientAge: colVal(cols, iAge),
+      patientGender: colVal(cols, iGender),
       organ: colVal(cols, iOrgan),
       stainType: colVal(cols, iStain),
       pathologist: colVal(cols, iPathologist),
@@ -105,12 +109,12 @@ export default function UploadPage() {
   };
 
   const downloadTemplate = () => {
-    const header = "검체번호,차트번호,환자명,장기,염색,판독의";
+    const header = "검체번호,차트번호,환자명,나이,성별,장기,염색,판독의";
     const rows = items
       .filter((f) => f.status === "pending")
       .map((f) => {
         const sid = f.specimenNo.includes(",") ? `"${f.specimenNo}"` : f.specimenNo;
-        return `${sid},,,,,`;
+        return `${sid},,,,,,,`;
       });
     const csv = [header, ...rows].join("\n");
     const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
@@ -298,7 +302,7 @@ export default function UploadPage() {
                     </div>
 
                     {editingId === uf.id && uf.status === "pending" && (
-                      <div className="mt-3 pl-13 grid grid-cols-3 gap-2">
+                      <div className="mt-3 pl-13 grid grid-cols-4 gap-2">
                         <div>
                           <label className="text-[10px] text-gray-400 uppercase">검체번호</label>
                           <input value={uf.specimenNo} onChange={(e) => updateItem(uf.id, { specimenNo: e.target.value })}
@@ -313,6 +317,22 @@ export default function UploadPage() {
                           <label className="text-[10px] text-gray-400 uppercase">환자명</label>
                           <input value={uf.patientName} onChange={(e) => updateItem(uf.id, { patientName: e.target.value })}
                             className="w-full h-7 px-2 rounded border text-xs" placeholder="홍길동" />
+                        </div>
+                        <div className="flex gap-2">
+                          <div className="flex-1">
+                            <label className="text-[10px] text-gray-400 uppercase">나이</label>
+                            <input value={uf.patientAge} onChange={(e) => updateItem(uf.id, { patientAge: e.target.value })}
+                              className="w-full h-7 px-2 rounded border text-xs" placeholder="나이" type="number" />
+                          </div>
+                          <div className="flex-1">
+                            <label className="text-[10px] text-gray-400 uppercase">성별</label>
+                            <select value={uf.patientGender} onChange={(e) => updateItem(uf.id, { patientGender: e.target.value })}
+                              className="w-full h-7 px-2 rounded border text-xs bg-white">
+                              <option value="">선택</option>
+                              <option value="M">M</option>
+                              <option value="F">F</option>
+                            </select>
+                          </div>
                         </div>
                         <div>
                           <label className="text-[10px] text-gray-400 uppercase">장기</label>

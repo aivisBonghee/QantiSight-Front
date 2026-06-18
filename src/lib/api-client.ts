@@ -7,6 +7,8 @@ interface ApiCaseResponse {
   hospital_code: string;
   patient_id: string;
   patient_name: string;
+  patient_age: number | null;
+  patient_gender: string | null;
   pathologist: string | null;
   exam_no: string;
   exam_date: string;
@@ -60,6 +62,8 @@ function mapCase(c: ApiCaseResponse): SlideCase {
     hospitalCode: c.hospital_code as SlideCase["hospitalCode"],
     patientId: c.patient_id,
     patientName: c.patient_name,
+    patientAge: c.patient_age,
+    patientGender: c.patient_gender,
     examNo: c.exam_no,
     examDate: c.exam_date,
     organ: c.organ as SlideCase["organ"],

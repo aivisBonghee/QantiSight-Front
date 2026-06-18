@@ -88,7 +88,16 @@ export function CaseInfoPanel({ slideCase, onClose }: Props) {
           {/* Row 1: Patient info */}
           <div className="grid grid-cols-4 gap-x-6 gap-y-1.5 pb-2 border-b border-gray-100">
             <Field label="조직번호" value={slideCase.specimenNo || slideCase.slideId} />
-            <Field label="환자명" value={slideCase.patientName} />
+            <Field label="환자명" value={
+              <span>
+                {slideCase.patientName || "-"}
+                {(slideCase.patientAge || slideCase.patientGender) && (
+                  <span className="text-[10px] text-gray-400 ml-1">
+                    ({[slideCase.patientGender, slideCase.patientAge ? `${slideCase.patientAge}세` : null].filter(Boolean).join("/")})
+                  </span>
+                )}
+              </span>
+            } />
             <Field label="차트번호" value={slideCase.patientId} />
             <Field label="접수일자" value={slideCase.examDate} />
           </div>

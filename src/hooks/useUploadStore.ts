@@ -7,6 +7,8 @@ export interface UploadItem {
   specimenNo: string;
   patientId: string;
   patientName: string;
+  patientAge: string;
+  patientGender: string;
   organ: string;
   stainType: string;
   pathologist: string;
@@ -51,6 +53,8 @@ export const useUploadStore = create<UploadStore>((set, get) => ({
       specimenNo: parseSpecimen(f.name),
       patientId: "",
       patientName: "",
+      patientAge: "",
+      patientGender: "",
       organ: "",
       stainType: "",
       pathologist: "",
@@ -82,6 +86,8 @@ export const useUploadStore = create<UploadStore>((set, get) => ({
             mapped: true,
             patientId: match.patientId || item.patientId,
             patientName: match.patientName || item.patientName,
+            patientAge: match.patientAge || item.patientAge,
+            patientGender: match.patientGender || item.patientGender,
             organ: match.organ || item.organ,
             stainType: match.stainType || item.stainType,
             pathologist: match.pathologist || item.pathologist,
@@ -119,6 +125,8 @@ function uploadSingle(
   formData.append("file", item.file);
   if (item.patientId) formData.append("patient_id", item.patientId);
   if (item.patientName) formData.append("patient_name", item.patientName);
+  if (item.patientAge) formData.append("patient_age", item.patientAge);
+  if (item.patientGender) formData.append("patient_gender", item.patientGender);
   if (item.organ) formData.append("organ", item.organ);
   if (item.stainType) formData.append("stain_type", item.stainType);
   if (item.pathologist) formData.append("pathologist", item.pathologist);
