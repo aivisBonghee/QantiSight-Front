@@ -15,7 +15,7 @@ const WELCOME_MESSAGE: Message = {
   id: "welcome",
   role: "assistant",
   content:
-    "QantiSight AI 어시스턴트입니다. 슬라이드 QC 결과, 케이스 통계, 품질 지표에 대해 질문하세요.",
+    "QantiSight AI 어시스턴트입니다. 슬라이드 QC 결과, 케이스 통계, 품질 지표 조회와 서버별 데이터 파일 위치 검색이 가능합니다.",
   timestamp: new Date(),
 };
 
