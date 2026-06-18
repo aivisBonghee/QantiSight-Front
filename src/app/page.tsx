@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Header } from "@/components/layout/Header";
 import { PanelLeftOpen } from "lucide-react";
@@ -10,7 +10,7 @@ import { SearchBar } from "@/components/dashboard/SearchBar";
 import { CaseTable } from "@/components/dashboard/CaseTable";
 import { CaseDetail } from "@/components/dashboard/CaseDetail";
 import { CaseInfoPanel } from "@/components/dashboard/CaseInfoPanel";
-import { fetchCases, fetchSummary } from "@/lib/api-client";
+import { fetchCases, fetchSummary, fetchCase } from "@/lib/api-client";
 import { useFilters } from "@/hooks/useFilters";
 import type { SlideCase } from "@/types/case";
 
@@ -184,7 +184,11 @@ function Dashboard() {
                   key={selected.id}
                   slideCase={selected}
                   onClose={() => setSelected(null)}
-                  onCommentAdded={() => qc.invalidateQueries({ queryKey: ["cases"] })}
+                  onCommentAdded={async () => {
+                    qc.invalidateQueries({ queryKey: ["cases"] });
+                    const updated = await fetchCase(selected.id);
+                    setSelected(updated);
+                  }}
                 />
               </div>
             )}
