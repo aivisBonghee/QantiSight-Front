@@ -54,7 +54,7 @@ export function CaseInfoPanel({ slideCase, onClose, onCommentAdded }: Props) {
           </span>
           <span
             className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-              isPass ? "bg-emerald-400/20 text-emerald-200" : "bg-red-400/20 text-red-200"
+              isPass ? "bg-emerald-400/20 text-emerald-200" : "bg-red-500/30 text-red-300"
             }`}
           >
             {isPass ? "적합" : "부적합"}

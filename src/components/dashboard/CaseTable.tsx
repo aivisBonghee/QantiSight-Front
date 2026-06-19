@@ -180,7 +180,7 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
                   { key: "pathologist", label: "판독의", sort: false, w: "w-[90px]" },
                   { key: "organ", label: "장기", sort: true, w: "w-[80px]" },
                   { key: "organMatch", label: "AI 장기", sort: false, w: "w-[75px]" },
-                  { key: "stain", label: "염색", sort: true, w: "w-[60px]" },
+                  { key: "stain", label: "염색", sort: true, w: "w-[85px]" },
                   { key: "stainMatch", label: "AI 염색", sort: false, w: "w-[75px]" },
                   { key: "control", label: "컨트롤 티슈", sort: false, w: "w-[85px]" },
                   { key: "lesion", label: "병변량", sort: false, w: "w-[75px]" },
