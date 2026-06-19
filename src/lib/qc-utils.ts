@@ -15,7 +15,6 @@ export type QcVerdict = "pass" | "insufficient" | "fail";
 export function getQcVerdict(c: SlideCase): QcVerdict {
   if (!c.qcResult) return "fail";
   const qc = c.qcResult;
-  if (qc.overallQcScore != null && qc.overallQcScore <= 0) return "fail";
 
   const hasOrgan = !!c.organ?.trim();
   const hasStain = !!c.stainType?.trim();
@@ -24,5 +23,6 @@ export function getQcVerdict(c: SlideCase): QcVerdict {
 
   if (!organOk || !stainOk) return "fail";
   if (!hasOrgan || !hasStain) return "insufficient";
+  if (qc.overallQcScore != null && qc.overallQcScore <= 0) return "fail";
   return "pass";
 }

@@ -238,8 +238,8 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
                     {c.status === "PROCESSING" && <ProgressBar caseId={c.id} />}
                   </TableCell>
                   <TableCell className="py-1.5">
-                    <div className="text-[12px] font-bold text-gray-900 leading-tight">{c.patientName}</div>
-                    <div className="text-[10px] text-gray-500 font-mono leading-tight">{c.patientId}</div>
+                    <div className={`text-[12px] font-bold leading-tight ${c.patientName ? "text-gray-900" : "text-gray-400"}`}>{c.patientName || "-"}</div>
+                    <div className={`text-[10px] font-mono leading-tight ${c.patientId ? "text-gray-500" : "text-gray-400"}`}>{c.patientId || "-"}</div>
                   </TableCell>
                   <TableCell className="py-1.5 whitespace-nowrap">
                     <span className="text-[12px] text-gray-700">{c.pathologist || "-"}</span>
