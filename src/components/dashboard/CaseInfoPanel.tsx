@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { SlideCase } from "@/types/case";
 import { stainMatches, getQcVerdict } from "@/lib/qc-utils";
 import { addComment, updateComment, deleteComment } from "@/lib/api-client";
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 
 function MatchText({ match, label }: { match: boolean; label: string }) {
   return (
@@ -37,6 +38,9 @@ export function CaseInfoPanel({ slideCase, onClose, onCommentAdded }: Props) {
   const [isSaving, setIsSaving] = useState(false);
 
   const verdict = getQcVerdict(slideCase);
+  const missingFields: string[] = [];
+  if (!slideCase.organ?.trim()) missingFields.push("장기");
+  if (!slideCase.stainType?.trim()) missingFields.push("염색");
 
   let lesionDetail: Record<string, number> | null = null;
   if (qc?.lesionDetail) {
@@ -61,7 +65,12 @@ export function CaseInfoPanel({ slideCase, onClose, onCommentAdded }: Props) {
             {verdict === "pass" ? "적합" : verdict === "insufficient" ? (
               <span className="inline-flex items-center gap-0.5">
                 불충분
-                <span className="cursor-help" title="기입 정보가 부족하여 분석 정보와 비교할 수 없는 항목이 있습니다">&#9432;</span>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger className="cursor-help">&#9432;</TooltipTrigger>
+                    <TooltipContent side="bottom">{missingFields.join(", ")} 정보가 입력되지 않아 분석 결과와 비교할 수 없습니다</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </span>
             ) : "부적합"}
           </span>
