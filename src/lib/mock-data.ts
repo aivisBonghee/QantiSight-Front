@@ -25,7 +25,7 @@ const GIVEN_NAMES = [
 
 const HOSPITALS: HospitalCode[] = ["SMC", "KUMC", "HALLYM", "SCHMC"];
 const HOSPITAL_WEIGHTS = [0.3, 0.25, 0.2, 0.25];
-const STAINS: StainType[] = ["HE", "HER2", "ER", "PR", "KI67"];
+const STAINS: StainType[] = ["HE", "IHC-HER2", "IHC-ER", "IHC-PR", "IHC-KI67"];
 const ORGANS: OrganType[] = ["Breast", "Stomach", "Bladder", "Thyroid", "Colon", "Brain"];
 const SERVERS: ServerLocation[] = ["server-1", "server-2", "server-3", "server-4", "server-5"];
 const DIAGNOSES = [
@@ -98,7 +98,7 @@ function generateQcResult(rand: () => number, diagnosis: string): QcResult {
   }
 
   const organMatchWeight = organMatch ? 20 : 0;
-  const isIHC = ["HER2", "ER", "PR", "KI67"].includes(diagnosis) || rand() > 0.4;
+  const isIHC = ["IHC-HER2", "IHC-ER", "IHC-PR", "IHC-KI67"].includes(diagnosis) || rand() > 0.4;
   const controlTissuePresent = isIHC ? rand() < 0.88 : null;
   const controlTissueConfidence = controlTissuePresent !== null
     ? +(controlTissuePresent ? 0.82 + rand() * 0.17 : 0.2 + rand() * 0.3).toFixed(2)

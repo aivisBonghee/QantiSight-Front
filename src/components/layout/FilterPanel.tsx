@@ -4,14 +4,12 @@ import { useState, useRef } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useFilters } from "@/hooks/useFilters";
 import { PanelLeftClose } from "lucide-react";
-import type { StainType, OrganType, CaseStatus } from "@/types/case";
+import type { StainCategory, OrganType, CaseStatus } from "@/types/case";
 
-const STAINS: { value: StainType; label: string; color: string }[] = [
+const STAINS: { value: StainCategory; label: string; color: string }[] = [
   { value: "HE", label: "H&E", color: "bg-violet-400" },
-  { value: "HER2", label: "HER2", color: "bg-sky-400" },
-  { value: "ER", label: "ER", color: "bg-rose-400" },
-  { value: "PR", label: "PR", color: "bg-amber-400" },
-  { value: "KI67", label: "Ki-67", color: "bg-emerald-400" },
+  { value: "IHC-membrane", label: "IHC-membrane", color: "bg-sky-400" },
+  { value: "IHC-nuclear", label: "IHC-nuclear", color: "bg-rose-400" },
 ];
 
 const ORGANS: { value: OrganType; label: string }[] = [

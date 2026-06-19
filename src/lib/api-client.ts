@@ -1,4 +1,4 @@
-import type { SlideCase, QcResult, DashboardSummary, CaseFilters, CaseConfirmRequest, Comment } from "@/types/case";
+import type { SlideCase, QcResult, DashboardSummary, CaseFilters, CaseConfirmRequest, Comment, StainCategory } from "@/types/case";
 
 interface ApiCaseResponse {
   id: string;
@@ -116,11 +116,20 @@ function mapCase(c: ApiCaseResponse): SlideCase {
   };
 }
 
+const CATEGORY_TO_STAINS: Record<StainCategory, string[]> = {
+  "HE": ["HE"],
+  "IHC-membrane": ["IHC-HER2"],
+  "IHC-nuclear": ["IHC-ER", "IHC-PR", "IHC-KI67"],
+};
+
 function buildFilterParams(filters: CaseFilters): URLSearchParams {
   const params = new URLSearchParams();
   if (filters.search) params.set("search", filters.search);
   if (filters.organs.length > 0) params.set("organ", filters.organs.join(","));
-  if (filters.stainTypes.length > 0) params.set("stain_type", filters.stainTypes.join(","));
+  if (filters.stainTypes.length > 0) {
+    const expanded = filters.stainTypes.flatMap((cat) => CATEGORY_TO_STAINS[cat]);
+    params.set("stain_type", expanded.join(","));
+  }
   if (filters.statuses.length > 0) params.set("status", filters.statuses.join(","));
   if (filters.hospitalCode) params.set("hospital_code", filters.hospitalCode);
   if (filters.serverLocation) params.set("server_location", filters.serverLocation);

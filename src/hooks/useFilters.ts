@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import type {
   CaseFilters,
-  StainType,
+  StainCategory,
   OrganType,
   CaseStatus,
   OrganMatchFilter,
@@ -11,7 +11,7 @@ import type {
 } from "@/types/case";
 
 interface FilterState extends CaseFilters {
-  toggleStain: (s: StainType) => void;
+  toggleStain: (s: StainCategory) => void;
   toggleOrgan: (o: OrganType) => void;
   toggleStatus: (s: CaseStatus) => void;
   setSearch: (q: string) => void;

@@ -1,5 +1,6 @@
 export type HospitalCode = "SMC" | "KUMC" | "HALLYM" | "SCHMC";
-export type StainType = "HE" | "HER2" | "ER" | "PR" | "KI67";
+export type StainType = "HE" | "IHC-HER2" | "IHC-ER" | "IHC-PR" | "IHC-KI67";
+export type StainCategory = "HE" | "IHC-membrane" | "IHC-nuclear";
 export type OrganType =
   | "Breast"
   | "Stomach"
@@ -97,7 +98,7 @@ export type OrganMatchFilter = "match" | "mismatch";
 export type ControlTissueFilter = "present" | "missing";
 
 export interface CaseFilters {
-  stainTypes: StainType[];
+  stainTypes: StainCategory[];
   organs: OrganType[];
   statuses: CaseStatus[];
   hospitalCode: HospitalCode | null;

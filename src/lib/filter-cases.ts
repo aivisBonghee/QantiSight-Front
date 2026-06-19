@@ -1,8 +1,16 @@
-import type { SlideCase, CaseFilters } from "@/types/case";
+import type { SlideCase, CaseFilters, StainCategory, StainType } from "@/types/case";
+import { stainMatches } from "@/lib/qc-utils";
+
+function stainMatchesCategory(stain: StainType, category: StainCategory): boolean {
+  if (category === "HE") return stain === "HE";
+  if (category === "IHC-membrane") return stain === "IHC-HER2";
+  if (category === "IHC-nuclear") return ["IHC-ER", "IHC-PR", "IHC-KI67"].includes(stain);
+  return false;
+}
 
 export function filterCases(cases: SlideCase[], filters: CaseFilters): SlideCase[] {
   return cases.filter((c) => {
-    if (filters.stainTypes.length > 0 && !filters.stainTypes.includes(c.stainType))
+    if (filters.stainTypes.length > 0 && !filters.stainTypes.some((cat) => stainMatchesCategory(c.stainType, cat)))
       return false;
     if (filters.organs.length > 0 && !filters.organs.includes(c.organ))
       return false;
@@ -37,7 +45,7 @@ export function filterCases(cases: SlideCase[], filters: CaseFilters): SlideCase
       if (!c.qcResult) return false;
       const hasAny =
         !c.qcResult.organMatch ||
-        c.qcResult.stainClassification !== c.stainType ||
+        !stainMatches(c.qcResult.stainClassification, c.stainType) ||
         c.qcResult.controlTissuePresent === false ||
         c.qcResult.overallQcScore < 60;
       if (!hasAny) return false;
