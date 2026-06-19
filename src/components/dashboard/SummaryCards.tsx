@@ -71,7 +71,7 @@ export function SummaryCards({ summary }: Props) {
     {
       label: "컨트롤 티슈",
       value: `${controlRate.toFixed(1)}%`,
-      sub: <>미발현 <strong>{summary.controlTissueMissingCount}</strong>건</>,
+      sub: <>미검출 <strong>{summary.controlTissueMissingCount}</strong>건</>,
       gradient: "from-purple-600 to-violet-500",
       bar: summary.controlTissueRate,
       icon: (

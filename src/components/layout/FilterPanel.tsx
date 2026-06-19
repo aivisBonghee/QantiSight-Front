@@ -182,8 +182,8 @@ export function FilterPanel({ totalCount, onClose, onCollapse }: Props) {
             <div>
               <div className="text-[9px] text-gray-400 mb-1">컨트롤 티슈</div>
               <div className="flex flex-wrap gap-1.5">
-                <ToggleChip label="발현" active={controlTissue === "present"} color="bg-purple-600" onClick={() => setControlTissue("present")} />
-                <ToggleChip label="미발현" active={controlTissue === "missing"} color="bg-red-500" onClick={() => setControlTissue("missing")} />
+                <ToggleChip label="검출" active={controlTissue === "present"} color="bg-purple-600" onClick={() => setControlTissue("present")} />
+                <ToggleChip label="미검출" active={controlTissue === "missing"} color="bg-red-500" onClick={() => setControlTissue("missing")} />
               </div>
             </div>
             <div>

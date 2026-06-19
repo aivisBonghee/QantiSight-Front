@@ -434,7 +434,7 @@ export function CaseDetail({ slideCase, onClose, onCommentAdded }: Props) {
         </div>
 
         {/* Control Tissue */}
-        <Section title="컨트롤 티슈 발현">
+        <Section title="컨트롤 티슈 검출">
           {qc ? (
             qc.controlTissuePresent === null || qc.controlTissuePresent === undefined ? (
               <p className="text-[11px] text-gray-400 italic">컨트롤 티슈 검출 미지원 (AI 모델 범위 외)</p>
@@ -456,7 +456,7 @@ export function CaseDetail({ slideCase, onClose, onCommentAdded }: Props) {
                         qc.controlTissuePresent ? "text-purple-700" : "text-red-700"
                       }`}
                     >
-                      {qc.controlTissuePresent ? "발현 확인" : "미발현"}
+                      {qc.controlTissuePresent ? "검출" : "미검출"}
                     </span>
                     <span className="text-[10px] text-gray-400">
                       {(qc.controlTissueConfidence! * 100).toFixed(0)}%
@@ -464,8 +464,8 @@ export function CaseDetail({ slideCase, onClose, onCommentAdded }: Props) {
                   </div>
                   <p className="text-[11px] text-gray-500 mt-0.5">
                     {qc.controlTissuePresent
-                      ? "컨트롤 티슈에서 정상 발현이 확인되었습니다"
-                      : "컨트롤 티슈 미발현 — 염색 재검토 필요"}
+                      ? "컨트롤 티슈가 검출되었습니다"
+                      : "컨트롤 티슈 미검출 — 염색 재검토 필요"}
                   </p>
                 </div>
               </div>
