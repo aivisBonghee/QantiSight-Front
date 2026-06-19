@@ -58,7 +58,12 @@ export function CaseInfoPanel({ slideCase, onClose, onCommentAdded }: Props) {
                 : "bg-red-500/30 text-red-300"
             }`}
           >
-            {verdict === "pass" ? "적합" : verdict === "insufficient" ? "불충분" : "부적합"}
+            {verdict === "pass" ? "적합" : verdict === "insufficient" ? (
+              <span className="inline-flex items-center gap-0.5">
+                불충분
+                <span className="cursor-help" title="기입 정보가 부족하여 분석 정보와 비교할 수 없는 항목이 있습니다">&#9432;</span>
+              </span>
+            ) : "부적합"}
           </span>
           <span
             className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
