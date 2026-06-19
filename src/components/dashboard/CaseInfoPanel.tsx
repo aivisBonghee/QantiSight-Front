@@ -119,10 +119,10 @@ export function CaseInfoPanel({ slideCase, onClose, onCommentAdded }: Props) {
                 qc ? (
                   <div className="flex items-center gap-1.5">
                     <MatchText match={qc.organMatch} label={qc.detectedOrgan} />
-                    <span className="text-[9px] text-gray-400">의뢰: {slideCase.organ}</span>
+                    <span className="text-[9px] text-gray-400">의뢰: {slideCase.organ || "-"}</span>
                   </div>
                 ) : (
-                  slideCase.organ
+                  slideCase.organ || "-"
                 )
               }
             />
@@ -135,10 +135,10 @@ export function CaseInfoPanel({ slideCase, onClose, onCommentAdded }: Props) {
                       match={stainMatches(qc.stainClassification, slideCase.stainType)}
                       label={qc.stainClassification}
                     />
-                    <span className="text-[9px] text-gray-400">의뢰: {slideCase.stainType}</span>
+                    <span className="text-[9px] text-gray-400">의뢰: {slideCase.stainType || "-"}</span>
                   </div>
                 ) : (
-                  slideCase.stainType
+                  slideCase.stainType || "-"
                 )
               }
             />
@@ -210,7 +210,7 @@ export function CaseInfoPanel({ slideCase, onClose, onCommentAdded }: Props) {
                       ? "불확실"
                       : "해당없음"}
                     {qc.controlPieces && qc.controlPieces.length > 0 && (
-                      <span className="text-[9px] text-gray-400 font-normal ml-1">
+                      <span className="text-[10px] text-gray-500 font-semibold ml-1">
                         ({qc.controlPieces.length}개, {Math.round(qc.controlPieces[0].p * 100)}%)
                       </span>
                     )}
@@ -320,30 +320,34 @@ export function CaseInfoPanel({ slideCase, onClose, onCommentAdded }: Props) {
                   className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
                 />
               )}
-              {qc?.controlPieces && qc.controlPieces.length > 0 && !showHeatmap && (
-                <svg className="absolute inset-0 w-full h-full pointer-events-none">
-                  {qc.controlPieces.map((piece, i) => {
-                    const raw = piece as Record<string, unknown>;
-                    const b = (raw.bbox_pct ?? raw.bbox) as number[] | undefined;
-                    if (!b || b.length < 4 || b.some((v) => v > 1)) return null;
-                    return (
-                      <rect
-                        key={i}
-                        x={`${b[0] * 100}%`}
-                        y={`${b[1] * 100}%`}
-                        width={`${(b[2] - b[0]) * 100}%`}
-                        height={`${(b[3] - b[1]) * 100}%`}
-                        fill="none"
-                        stroke="#22d3ee"
-                        strokeWidth="2"
-                        strokeDasharray="4 2"
-                        rx="2"
-                      />
+              {qc?.controlPieces && qc.controlPieces.length > 0 && !showHeatmap && (() => {
+                const rects = qc.controlPieces!.map((piece, i) => {
+                  const raw = piece as Record<string, unknown>;
+                  const b = (raw.bbox_pct ?? raw.bbox) as number[] | undefined;
+                  if (!b || b.length < 4 || b.some((v) => v > 1)) return null;
+                  return (
+                    <rect
+                      key={i}
+                      x={`${b[0] * 100}%`}
+                      y={`${b[1] * 100}%`}
+                      width={`${(b[2] - b[0]) * 100}%`}
+                      height={`${(b[3] - b[1]) * 100}%`}
+                      fill="none"
+                      stroke="#22d3ee"
+                      strokeWidth="2"
+                      strokeDasharray="4 2"
+                      rx="2"
+                    />
                     );
-                  })}
-                  <text x="4" y="12" fontSize="8" fill="#22d3ee" fontWeight="bold">Control</text>
-                </svg>
-              )}
+                  }).filter(Boolean);
+                  if (rects.length === 0) return null;
+                  return (
+                    <svg className="absolute inset-0 w-full h-full pointer-events-none">
+                      {rects}
+                      <text x="4" y="12" fontSize="8" fill="#22d3ee" fontWeight="bold">Control</text>
+                    </svg>
+                  );
+                })()}
               {qc?.heatmapPath && (
                 <button
                   onClick={() => setShowHeatmap((v) => !v)}
