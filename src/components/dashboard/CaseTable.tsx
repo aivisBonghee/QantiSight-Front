@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import {
   Table,
@@ -79,9 +79,12 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
     );
   }
 
+  const progressCache = useRef<Record<string, { progress: number; step: string }>>({});
+
   function ProgressBar({ caseId }: { caseId: string }) {
-    const [progress, setProgress] = useState(0);
-    const [step, setStep] = useState("");
+    const cached = progressCache.current[caseId];
+    const [progress, setProgress] = useState(cached?.progress ?? 0);
+    const [step, setStep] = useState(cached?.step ?? "");
 
     useEffect(() => {
       let active = true;
@@ -91,8 +94,11 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
           const res = await fetch(`/api/analysis/${caseId}/progress`);
           if (res.ok && active) {
             const data = await res.json();
-            setProgress(data.progress ?? 0);
-            setStep(data.step ?? "");
+            const p = data.progress ?? 0;
+            const s = data.step ?? "";
+            setProgress((prev) => Math.max(prev, p));
+            setStep(s);
+            progressCache.current[caseId] = { progress: p, step: s };
             if (data.status !== "PROCESSING") {
               clearInterval(intervalId);
             }
