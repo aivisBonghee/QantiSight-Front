@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { SlideCase } from "@/types/case";
-import { stainMatches } from "@/lib/qc-utils";
+import { stainMatches, getQcVerdict } from "@/lib/qc-utils";
 import { addComment, updateComment, deleteComment } from "@/lib/api-client";
 
 function MatchText({ match, label }: { match: boolean; label: string }) {
@@ -36,8 +36,7 @@ export function CaseInfoPanel({ slideCase, onClose, onCommentAdded }: Props) {
   const [editText, setEditText] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
-  const isPass =
-    qc && qc.organMatch && stainMatches(qc.stainClassification, slideCase.stainType) && qc.overallQcScore > 0;
+  const verdict = getQcVerdict(slideCase);
 
   let lesionDetail: Record<string, number> | null = null;
   if (qc?.lesionDetail) {
@@ -54,10 +53,12 @@ export function CaseInfoPanel({ slideCase, onClose, onCommentAdded }: Props) {
           </span>
           <span
             className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-              isPass ? "bg-emerald-400/20 text-emerald-200" : "bg-red-500/30 text-red-300"
+              verdict === "pass" ? "bg-emerald-400/20 text-emerald-200"
+                : verdict === "insufficient" ? "bg-amber-400/20 text-amber-200"
+                : "bg-red-500/30 text-red-300"
             }`}
           >
-            {isPass ? "적합" : "부적합"}
+            {verdict === "pass" ? "적합" : verdict === "insufficient" ? "불충분" : "부적합"}
           </span>
           <span
             className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${

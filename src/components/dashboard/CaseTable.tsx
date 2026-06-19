@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { SlideCase, CaseStatus } from "@/types/case";
-import { stainMatches } from "@/lib/qc-utils";
+import { stainMatches, getQcVerdict } from "@/lib/qc-utils";
 
 interface Props {
   cases: SlideCase[];
@@ -295,13 +295,18 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
                     <QcCell c={c} />
                   </TableCell>
                   <TableCell className="py-1.5 whitespace-nowrap">
-                    {!c.qcResult ? (
-                      <span className="text-gray-400">-</span>
-                    ) : c.qcResult.organMatch && stainMatches(c.qcResult.stainClassification, c.stainType) && c.qcResult.overallQcScore > 0 ? (
-                      <span className="text-emerald-600 font-bold text-[12px]">적합</span>
-                    ) : (
-                      <span className="text-red-600 font-bold text-[12px]">부적합</span>
-                    )}
+                    {(() => {
+                      const v = getQcVerdict(c);
+                      return v === "pass" ? (
+                        <span className="text-emerald-600 font-bold text-[12px]">적합</span>
+                      ) : v === "insufficient" ? (
+                        <span className="text-amber-500 font-bold text-[12px]">불충분</span>
+                      ) : !c.qcResult ? (
+                        <span className="text-gray-400">-</span>
+                      ) : (
+                        <span className="text-red-600 font-bold text-[12px]">부적합</span>
+                      );
+                    })()}
                   </TableCell>
                 </TableRow>
               ))}
