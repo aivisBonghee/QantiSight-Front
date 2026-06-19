@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/table";
 import type { SlideCase, CaseStatus } from "@/types/case";
 import { stainMatches, getQcVerdict } from "@/lib/qc-utils";
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 
 interface Props {
   cases: SlideCase[];
@@ -307,7 +308,12 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
                       ) : v === "insufficient" ? (
                         <span className="text-amber-500 font-bold text-[12px] inline-flex items-center gap-0.5">
                           불충분
-                          <span className="cursor-help text-amber-400" title="기입 정보가 부족하여 분석 정보와 비교할 수 없는 항목이 있습니다">&#9432;</span>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger className="cursor-help text-amber-400">&#9432;</TooltipTrigger>
+                              <TooltipContent side="top">기입 정보가 부족하여 분석 정보와 비교할 수 없는 란이 있을 때 표시</TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         </span>
                       ) : !c.qcResult ? (
                         <span className="text-gray-400">-</span>
