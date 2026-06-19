@@ -238,6 +238,13 @@ export async function deleteComment(
   if (!res.ok) throw new Error("Failed to delete comment");
 }
 
+export async function deleteCases(ids: string[]): Promise<void> {
+  const params = new URLSearchParams();
+  ids.forEach((id) => params.append("ids", id));
+  const res = await fetch(`/api/cases?${params}`, { method: "DELETE" });
+  if (!res.ok) throw new Error("Failed to delete cases");
+}
+
 export async function fetchAnalysisProgress(
   caseId: string,
 ): Promise<{ progress: number; step: string; status: string }> {

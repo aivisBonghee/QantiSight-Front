@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { ArrowUpDown, ArrowUp, ArrowDown, Trash2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -21,6 +21,7 @@ interface Props {
   pageSize: number;
   onPageChange: (page: number) => void;
   onSelect: (c: SlideCase) => void;
+  onDelete?: (ids: string[]) => void;
   selectedId?: string;
   isLoading?: boolean;
   sortBy?: string;
@@ -56,7 +57,28 @@ const STATUS: Record<CaseStatus, { label: string; dot: string; badge: string }> 
   },
 };
 
-export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect, selectedId, isLoading, sortBy, sortDir, onSort }: Props) {
+export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect, onDelete, selectedId, isLoading, sortBy, sortDir, onSort }: Props) {
+  const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
+  const allChecked = cases.length > 0 && cases.every((c) => checkedIds.has(c.id));
+  const someChecked = checkedIds.size > 0;
+
+  const toggleAll = () => {
+    if (allChecked) {
+      setCheckedIds(new Set());
+    } else {
+      setCheckedIds(new Set(cases.map((c) => c.id)));
+    }
+  };
+
+  const toggleOne = (id: string) => {
+    setCheckedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
   const totalPages = Math.ceil(total / pageSize);
 
   function visiblePages(): number[] {
@@ -173,6 +195,14 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
         <table className="w-full caption-bottom text-sm table-fixed">
             <TableHeader className="sticky top-0 z-10">
               <TableRow className="bg-[#1a3a5c] hover:bg-[#1a3a5c]">
+                <TableHead className="w-[40px] py-2.5 bg-[#1a3a5c]">
+                  <input
+                    type="checkbox"
+                    checked={allChecked}
+                    onChange={toggleAll}
+                    className="w-3.5 h-3.5 rounded cursor-pointer accent-white"
+                  />
+                </TableHead>
                 {[
                   { key: "no", label: "No.", sort: false, w: "w-[45px]" },
                   { key: "slideId", label: "검체번호", sort: true, w: "min-w-[150px]", align: "text-left" },
@@ -223,6 +253,14 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
                       : "bg-[#fafbfc] hover:bg-gray-50"
                   }`}
                 >
+                  <TableCell className="py-1.5" onClick={(e) => e.stopPropagation()}>
+                    <input
+                      type="checkbox"
+                      checked={checkedIds.has(c.id)}
+                      onChange={() => toggleOne(c.id)}
+                      className="w-3.5 h-3.5 rounded cursor-pointer accent-[#1a3a5c]"
+                    />
+                  </TableCell>
                   <TableCell className="py-1.5 text-[11px] text-gray-400 tabular-nums">
                     {i + 1}
                   </TableCell>
@@ -330,10 +368,26 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
 
       {/* Pagination — 하단 고정 */}
       <div className="shrink-0 flex items-center justify-between px-2 py-1">
-        <span className="text-[13px] text-gray-500">
-          전체 <strong className="text-gray-800">{total}</strong>건
-          {isLoading && <span className="ml-2 text-xs text-blue-500">로딩중...</span>}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-[13px] text-gray-500">
+            전체 <strong className="text-gray-800">{total}</strong>건
+            {isLoading && <span className="ml-2 text-xs text-blue-500">로딩중...</span>}
+          </span>
+          {someChecked && onDelete && (
+            <button
+              onClick={() => {
+                if (confirm(`선택한 ${checkedIds.size}건을 삭제하시겠습니까?`)) {
+                  onDelete(Array.from(checkedIds));
+                  setCheckedIds(new Set());
+                }
+              }}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-red-500 text-white text-[12px] font-semibold hover:bg-red-600 transition-colors cursor-pointer"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              {checkedIds.size}건 삭제
+            </button>
+          )}
+        </div>
         <div className="flex items-center gap-1">
           <button
             onClick={() => onPageChange(1)}

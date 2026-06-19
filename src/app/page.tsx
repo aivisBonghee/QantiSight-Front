@@ -10,7 +10,7 @@ import { SearchBar } from "@/components/dashboard/SearchBar";
 import { CaseTable } from "@/components/dashboard/CaseTable";
 import { CaseDetail } from "@/components/dashboard/CaseDetail";
 import { CaseInfoPanel } from "@/components/dashboard/CaseInfoPanel";
-import { fetchCases, fetchSummary, fetchCase } from "@/lib/api-client";
+import { fetchCases, fetchSummary, fetchCase, deleteCases } from "@/lib/api-client";
 import { useFilters } from "@/hooks/useFilters";
 import type { SlideCase } from "@/types/case";
 
@@ -96,6 +96,17 @@ function Dashboard() {
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
+  };
+
+  const handleDelete = async (ids: string[]) => {
+    try {
+      await deleteCases(ids);
+      if (selected && ids.includes(selected.id)) setSelected(null);
+      qc.invalidateQueries({ queryKey: ["cases"] });
+      qc.invalidateQueries({ queryKey: ["summary"] });
+    } catch {
+      alert("삭제에 실패했습니다.");
+    }
   };
 
   const handleSort = (key: string) => {
@@ -210,6 +221,7 @@ function Dashboard() {
                   pageSize={pageSize}
                   onPageChange={handlePageChange}
                   onSelect={(c) => setSelected(c)}
+                  onDelete={handleDelete}
                   selectedId={selected?.id}
                   isLoading={isFetching}
                   sortBy={sortKey}
