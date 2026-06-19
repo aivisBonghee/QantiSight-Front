@@ -341,6 +341,9 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
                   <TableCell className="py-1.5 whitespace-nowrap">
                     {(() => {
                       const v = getQcVerdict(c);
+                      const missing: string[] = [];
+                      if (!c.organ?.trim()) missing.push("장기");
+                      if (!c.stainType?.trim()) missing.push("염색");
                       return v === "pass" ? (
                         <span className="text-emerald-600 font-bold text-[12px]">적합</span>
                       ) : v === "insufficient" ? (
@@ -349,7 +352,7 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger className="cursor-help text-amber-400">&#9432;</TooltipTrigger>
-                              <TooltipContent side="top">기입 정보가 부족하여 분석 정보와 비교할 수 없는 란이 있을 때 표시</TooltipContent>
+                              <TooltipContent side="top">{missing.join(", ")} 정보가 입력되지 않아 분석 결과와 비교할 수 없습니다</TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
                         </span>
