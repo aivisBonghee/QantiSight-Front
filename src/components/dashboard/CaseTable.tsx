@@ -245,15 +245,19 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
                     <span className="text-[12px] text-gray-700">{c.pathologist || "-"}</span>
                   </TableCell>
                   <TableCell className="py-1.5 whitespace-nowrap">
-                    <span className="text-[13px] font-semibold text-gray-800">{c.organ}</span>
+                    <span className={`text-[13px] font-semibold ${c.organ ? "text-gray-800" : "text-gray-400"}`}>{c.organ || "-"}</span>
                   </TableCell>
                   <TableCell className="py-1.5 whitespace-nowrap">
                     <OrganMatchCell c={c} />
                   </TableCell>
                   <TableCell className="py-1.5 whitespace-nowrap">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded bg-[#e8edf5] text-[#1a3a5c] text-[11px] font-bold">
-                      {c.stainType}
-                    </span>
+                    {c.stainType ? (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded bg-[#e8edf5] text-[#1a3a5c] text-[11px] font-bold">
+                        {c.stainType}
+                      </span>
+                    ) : (
+                      <span className="text-gray-400">-</span>
+                    )}
                   </TableCell>
                   <TableCell className="py-1.5 whitespace-nowrap">
                     {c.qcResult ? (
