@@ -76,7 +76,7 @@ export interface QcResult {
   focusScore: number;
   stainQuality: number;
   tissueCoverage: number;
-  overallQcScore: number;
+  overallQcScore: number | null;
   organMatch: boolean;
   detectedOrgan: string;
   organConfidence: number;

@@ -245,7 +245,7 @@ export function computeSummary(cases: SlideCase[]): DashboardSummary {
 
   const avgQcScore =
     totalDone > 0
-      ? doneCases.reduce((sum, c) => sum + c.qcResult!.overallQcScore, 0) / totalDone
+      ? doneCases.reduce((sum, c) => sum + (c.qcResult!.overallQcScore ?? 0), 0) / totalDone
       : 0;
 
   const focusIssueCount = doneCases.filter((c) => c.qcResult!.focusScore < 60).length;

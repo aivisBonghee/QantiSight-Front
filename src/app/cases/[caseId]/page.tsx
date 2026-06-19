@@ -323,15 +323,15 @@ export default function CaseDetailPage({ params }: Props) {
                             r="42"
                             fill="none"
                             stroke={
-                              qc.overallQcScore >= 80
+                              (qc.overallQcScore ?? 0) >= 80
                                 ? "#27BE69"
-                                : qc.overallQcScore >= 60
+                                : (qc.overallQcScore ?? 0) >= 60
                                 ? "#FFCF0F"
                                 : "#FF4242"
                             }
                             strokeWidth="8"
                             strokeLinecap="round"
-                            strokeDasharray={`${(qc.overallQcScore / 100) * 264} 264`}
+                            strokeDasharray={`${((qc.overallQcScore ?? 0) / 100) * 264} 264`}
                           />
                         </svg>
                         <div className="absolute inset-0 flex items-center justify-center">

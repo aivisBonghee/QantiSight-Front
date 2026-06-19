@@ -89,7 +89,7 @@ function mapCase(c: ApiCaseResponse): SlideCase {
           focusScore: c.qc_result.focus_score ?? 0,
           stainQuality: c.qc_result.stain_quality ?? 0,
           tissueCoverage: c.qc_result.tissue_coverage ?? 0,
-          overallQcScore: c.qc_result.overall_qc_score ?? 0,
+          overallQcScore: c.qc_result.overall_qc_score,
           organMatch: c.qc_result.organ_match ?? false,
           detectedOrgan: c.qc_result.detected_organ ?? "",
           organConfidence: c.qc_result.organ_confidence ?? 0,

@@ -155,6 +155,7 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
   function QcCell({ c }: { c: SlideCase }) {
     if (!c.qcResult) return <span className="text-gray-400">-</span>;
     const score = c.qcResult.overallQcScore;
+    if (score == null) return <span className="text-gray-400">-</span>;
     const isLow = score < 60;
     return (
       <span className={`inline-flex items-center justify-center w-9 h-7 rounded-lg border-2 text-xs font-extrabold ${

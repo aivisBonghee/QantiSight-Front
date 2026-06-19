@@ -106,8 +106,9 @@ function PipelineSteps({ current }: { current: number }) {
   );
 }
 
-function MockSlidePreview({ qcScore }: { qcScore: number }) {
-  const scoreColor = qcScore >= 80 ? "#27BE69" : qcScore >= 60 ? "#FFCF0F" : "#FF4242";
+function MockSlidePreview({ qcScore }: { qcScore: number | null }) {
+  const s = qcScore ?? 0;
+  const scoreColor = s >= 80 ? "#27BE69" : s >= 60 ? "#FFCF0F" : "#FF4242";
 
   return (
     <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden bg-gradient-to-br from-[#f0e4f5] via-[#e8d0e8] to-[#d8c0d8]">
@@ -344,10 +345,10 @@ export function CaseDetail({ slideCase, onClose, onCommentAdded }: Props) {
                 <div
                   className="absolute top-2 right-2 w-11 h-11 rounded-xl flex flex-col items-center justify-center shadow-lg"
                   style={{
-                    backgroundColor: qc.overallQcScore >= 80 ? "#27BE69" : qc.overallQcScore >= 60 ? "#FFCF0F" : "#FF4242",
+                    backgroundColor: (qc.overallQcScore ?? 0) >= 80 ? "#27BE69" : (qc.overallQcScore ?? 0) >= 60 ? "#FFCF0F" : "#FF4242",
                   }}
                 >
-                  <span className="text-white text-sm font-extrabold">{qc.overallQcScore}</span>
+                  <span className="text-white text-sm font-extrabold">{qc.overallQcScore ?? "-"}</span>
                   <span className="text-white/70 text-[6px] font-medium">QC</span>
                 </div>
               )}

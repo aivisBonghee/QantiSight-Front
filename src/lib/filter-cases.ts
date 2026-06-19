@@ -34,7 +34,7 @@ export function filterCases(cases: SlideCase[], filters: CaseFilters): SlideCase
     if (filters.controlTissue && !c.qcResult) return false;
 
     if (filters.qcGrade && c.qcResult) {
-      const score = c.qcResult.overallQcScore;
+      const score = c.qcResult.overallQcScore ?? 0;
       if (filters.qcGrade === "good" && score < 80) return false;
       if (filters.qcGrade === "fair" && (score < 60 || score >= 80)) return false;
       if (filters.qcGrade === "poor" && score >= 60) return false;
@@ -47,7 +47,7 @@ export function filterCases(cases: SlideCase[], filters: CaseFilters): SlideCase
         !c.qcResult.organMatch ||
         !stainMatches(c.qcResult.stainClassification, c.stainType) ||
         c.qcResult.controlTissuePresent === false ||
-        c.qcResult.overallQcScore < 60;
+        (c.qcResult.overallQcScore ?? 0) < 60;
       if (!hasAny) return false;
     }
 
