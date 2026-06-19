@@ -317,8 +317,9 @@ export function CaseInfoPanel({ slideCase, onClose, onCommentAdded }: Props) {
               {qc?.controlPieces && qc.controlPieces.length > 0 && !showHeatmap && (
                 <svg className="absolute inset-0 w-full h-full pointer-events-none">
                   {qc.controlPieces.map((piece, i) => {
-                    const b = (piece as Record<string, unknown>).bbox_pct as number[] | undefined;
-                    if (!b) return null;
+                    const raw = piece as Record<string, unknown>;
+                    const b = (raw.bbox_pct ?? raw.bbox) as number[] | undefined;
+                    if (!b || b.length < 4 || b.some((v) => v > 1)) return null;
                     return (
                       <rect
                         key={i}
