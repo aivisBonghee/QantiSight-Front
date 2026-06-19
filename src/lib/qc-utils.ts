@@ -18,11 +18,11 @@ export function getQcVerdict(c: SlideCase): QcVerdict {
 
   const hasOrgan = !!c.organ?.trim();
   const hasStain = !!c.stainType?.trim();
-  const organOk = !hasOrgan || qc.organMatch;
-  const stainOk = !hasStain || stainMatches(qc.stainClassification, c.stainType);
 
-  if (!organOk || !stainOk) return "fail";
   if (!hasOrgan || !hasStain) return "insufficient";
+
+  if (!qc.organMatch) return "fail";
+  if (!stainMatches(qc.stainClassification, c.stainType)) return "fail";
   if (qc.overallQcScore != null && qc.overallQcScore <= 0) return "fail";
   return "pass";
 }
