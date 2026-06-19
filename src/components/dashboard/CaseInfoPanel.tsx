@@ -316,17 +316,17 @@ export function CaseInfoPanel({ slideCase, onClose, onCommentAdded }: Props) {
         {/* Right: Thumbnail */}
         <div className="shrink-0 w-[200px] flex flex-col gap-2">
           {slideCase.thumbnailPath ? (
-            <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
+            <div className="relative w-full rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
               <img
                 src={slideCase.thumbnailPath}
                 alt={slideCase.slideId}
-                className="w-full h-full object-cover"
+                className="w-full h-auto block"
               />
               {showHeatmap && qc?.heatmapPath && (
                 <img
                   src={qc.heatmapPath}
                   alt="Cell density heatmap"
-                  className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
+                  className="absolute inset-0 w-full h-full transition-opacity duration-300"
                 />
               )}
               {qc?.controlPieces && qc.controlPieces.length > 0 && !showHeatmap && (() => {
