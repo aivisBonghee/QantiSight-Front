@@ -498,7 +498,7 @@ export function CaseInfoPanel({ slideCase, onClose, onCommentAdded, onCaseUpdate
               <img
                 src={slideCase.thumbnailPath}
                 alt={slideCase.slideId}
-                className="w-full h-full object-contain"
+                className="w-full h-full object-fill"
               />
               {showHeatmap && qc?.heatmapPath && (
                 <img

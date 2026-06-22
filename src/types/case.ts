@@ -1,5 +1,5 @@
 export type HospitalCode = "SMC" | "KUMC" | "HALLYM" | "SCHMC";
-export type StainType = "HE" | "IHC-HER2" | "IHC-ER" | "IHC-PR" | "IHC-KI67";
+export type StainType = "HE" | "IHC-membrane" | "IHC-nuclear" | "IHC-HER2" | "IHC-ER" | "IHC-PR" | "IHC-KI67";
 export type StainCategory = "HE" | "IHC-membrane" | "IHC-nuclear";
 export type OrganType =
   | "Breast"
