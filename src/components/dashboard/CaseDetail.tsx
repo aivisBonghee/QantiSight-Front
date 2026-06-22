@@ -441,23 +441,20 @@ export function CaseDetail({ slideCase, onClose, onCommentAdded, onCaseUpdated }
                 <EditableField label="환자명" value={editFields.patientName} onChange={(v) => setEditFields((p) => ({ ...p, patientName: v }))} />
                 <EditableField label="나이" value={editFields.patientAge} onChange={(v) => setEditFields((p) => ({ ...p, patientAge: v }))} type="number" />
                 <EditableSelect label="성별" value={editFields.patientGender} onChange={(v) => setEditFields((p) => ({ ...p, patientGender: v }))} options={[
-                  { value: "", label: "-" }, { value: "M", label: "남" }, { value: "F", label: "여" },
+                  { value: "", label: "-" }, { value: "M", label: "M" }, { value: "F", label: "F" },
                 ]} />
                 <EditableField label="차트번호" value={editFields.patientId} onChange={(v) => setEditFields((p) => ({ ...p, patientId: v }))} />
                 <EditableField label="검사번호" value={editFields.examNo} onChange={(v) => setEditFields((p) => ({ ...p, examNo: v }))} />
-                <EditableField label="접수일자" value={editFields.examDate} onChange={(v) => setEditFields((p) => ({ ...p, examDate: v }))} />
+                <EditableField label="접수일자" value={editFields.examDate} onChange={(v) => setEditFields((p) => ({ ...p, examDate: v }))} type="date" />
                 <EditableField label="병원" value={editFields.hospitalCode} onChange={(v) => setEditFields((p) => ({ ...p, hospitalCode: v }))} />
-                <EditableSelect label="장기" value={editFields.organ} onChange={(v) => setEditFields((p) => ({ ...p, organ: v }))} options={[
-                  { value: "Breast", label: "Breast" }, { value: "Stomach", label: "Stomach" },
-                  { value: "Colon", label: "Colon" }, { value: "Lung", label: "Lung" },
-                  { value: "Kidney", label: "Kidney" }, { value: "Thyroid", label: "Thyroid" },
-                  { value: "Bladder", label: "Bladder" }, { value: "Brain", label: "Brain" },
-                ]} />
-                <EditableSelect label="염색" value={editFields.stainType} onChange={(v) => setEditFields((p) => ({ ...p, stainType: v }))} options={[
-                  { value: "HE", label: "HE" }, { value: "IHC-HER2", label: "IHC-HER2" },
-                  { value: "IHC-ER", label: "IHC-ER" }, { value: "IHC-PR", label: "IHC-PR" },
-                  { value: "IHC-KI67", label: "IHC-KI67" },
-                ]} />
+                <div className="flex items-center gap-2 text-[11px]">
+                  <span className="text-gray-400 font-medium shrink-0 w-16">장기</span>
+                  <span className="font-semibold text-gray-500">{slideCase.organ}</span>
+                </div>
+                <div className="flex items-center gap-2 text-[11px]">
+                  <span className="text-gray-400 font-medium shrink-0 w-16">염색</span>
+                  <span className="font-semibold text-gray-500">{slideCase.stainType}</span>
+                </div>
                 <EditableField label="판독의" value={editFields.pathologist} onChange={(v) => setEditFields((p) => ({ ...p, pathologist: v }))} />
                 <EditableField label="진단" value={editFields.diagnosis} onChange={(v) => setEditFields((p) => ({ ...p, diagnosis: v }))} />
               </div>

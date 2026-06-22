@@ -242,7 +242,7 @@ export function CaseInfoPanel({ slideCase, onClose, onCommentAdded, onCaseUpdate
                   <div className="flex gap-1">
                     <EditInput value={editFields.patientAge} onChange={(v) => setEditFields((p) => ({ ...p, patientAge: v }))} type="number" className="w-12" />
                     <EditSelect value={editFields.patientGender} onChange={(v) => setEditFields((p) => ({ ...p, patientGender: v }))} options={[
-                      { value: "", label: "-" }, { value: "M", label: "남" }, { value: "F", label: "여" },
+                      { value: "", label: "-" }, { value: "M", label: "M" }, { value: "F", label: "F" },
                     ]} />
                   </div>
                 </div>
@@ -252,7 +252,7 @@ export function CaseInfoPanel({ slideCase, onClose, onCommentAdded, onCaseUpdate
                 </div>
                 <div>
                   <div className="text-[9px] text-gray-500 font-medium mb-0.5">접수일자</div>
-                  <EditInput value={editFields.examDate} onChange={(v) => setEditFields((p) => ({ ...p, examDate: v }))} />
+                  <EditInput value={editFields.examDate} onChange={(v) => setEditFields((p) => ({ ...p, examDate: v }))} type="date" />
                 </div>
                 <div>
                   <div className="text-[9px] text-gray-500 font-medium mb-0.5">판독의</div>
@@ -277,60 +277,35 @@ export function CaseInfoPanel({ slideCase, onClose, onCommentAdded, onCaseUpdate
 
           {/* Row 2: QC info */}
           <div className="grid grid-cols-5 gap-x-6 gap-y-1.5 pt-2 pb-2 border-b border-gray-100">
-            {isEditing ? (
-              <div>
-                <div className="text-[9px] text-gray-500 font-medium mb-0.5">장기 (의뢰)</div>
-                <EditSelect value={editFields.organ} onChange={(v) => setEditFields((p) => ({ ...p, organ: v }))} options={[
-                  { value: "Breast", label: "Breast" }, { value: "Stomach", label: "Stomach" },
-                  { value: "Colon", label: "Colon" }, { value: "Lung", label: "Lung" },
-                  { value: "Kidney", label: "Kidney" }, { value: "Thyroid", label: "Thyroid" },
-                  { value: "Bladder", label: "Bladder" }, { value: "Brain", label: "Brain" },
-                ]} />
-                {qc && <div className="text-[9px] text-gray-400 mt-0.5">AI 검출: {qc.detectedOrgan}</div>}
-              </div>
-            ) : (
-              <Field
-                label="장기"
-                value={
-                  qc ? (
-                    <div className="flex items-center gap-1.5">
-                      <MatchText match={qc.organMatch} label={qc.detectedOrgan} />
-                      <span className="text-[9px] text-gray-400">의뢰: {slideCase.organ || "-"}</span>
-                    </div>
-                  ) : (
-                    slideCase.organ || "-"
-                  )
-                }
-              />
-            )}
-            {isEditing ? (
-              <div>
-                <div className="text-[9px] text-gray-500 font-medium mb-0.5">염색 (의뢰)</div>
-                <EditSelect value={editFields.stainType} onChange={(v) => setEditFields((p) => ({ ...p, stainType: v }))} options={[
-                  { value: "HE", label: "HE" }, { value: "IHC-HER2", label: "IHC-HER2" },
-                  { value: "IHC-ER", label: "IHC-ER" }, { value: "IHC-PR", label: "IHC-PR" },
-                  { value: "IHC-KI67", label: "IHC-KI67" },
-                ]} />
-                {qc && <div className="text-[9px] text-gray-400 mt-0.5">AI 검출: {qc.stainClassification}</div>}
-              </div>
-            ) : (
-              <Field
-                label="염색"
-                value={
-                  qc ? (
-                    <div className="flex items-center gap-1.5">
-                      <MatchText
-                        match={stainMatches(qc.stainClassification, slideCase.stainType)}
-                        label={qc.stainClassification}
-                      />
-                      <span className="text-[9px] text-gray-400">의뢰: {slideCase.stainType || "-"}</span>
-                    </div>
-                  ) : (
-                    slideCase.stainType || "-"
-                  )
-                }
-              />
-            )}
+            <Field
+              label="장기"
+              value={
+                qc ? (
+                  <div className="flex items-center gap-1.5">
+                    <MatchText match={qc.organMatch} label={qc.detectedOrgan} />
+                    <span className="text-[9px] text-gray-400">의뢰: {slideCase.organ || "-"}</span>
+                  </div>
+                ) : (
+                  slideCase.organ || "-"
+                )
+              }
+            />
+            <Field
+              label="염색"
+              value={
+                qc ? (
+                  <div className="flex items-center gap-1.5">
+                    <MatchText
+                      match={stainMatches(qc.stainClassification, slideCase.stainType)}
+                      label={qc.stainClassification}
+                    />
+                    <span className="text-[9px] text-gray-400">의뢰: {slideCase.stainType || "-"}</span>
+                  </div>
+                ) : (
+                  slideCase.stainType || "-"
+                )
+              }
+            />
             <Field
               label="QC 점수"
               value={

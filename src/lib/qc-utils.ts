@@ -24,5 +24,11 @@ export function getQcVerdict(c: SlideCase): QcVerdict {
   if (!qc.organMatch) return "fail";
   if (!stainMatches(qc.stainClassification, c.stainType)) return "fail";
   if (qc.overallQcScore != null && qc.overallQcScore <= 0) return "fail";
+
+  const isIHC = IHC_STAINS.includes(c.stainType);
+  if (isIHC && qc.controlTissueStatus && qc.controlTissueStatus !== "present" && qc.controlTissueStatus !== "n/a") {
+    return "fail";
+  }
+
   return "pass";
 }
