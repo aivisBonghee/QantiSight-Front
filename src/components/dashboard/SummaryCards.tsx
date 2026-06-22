@@ -5,6 +5,7 @@ import type { DashboardSummary } from "@/types/case";
 
 interface Props {
   summary: DashboardSummary;
+  compact?: boolean;
 }
 
 function useCountUp(target: number, duration = 1200) {
@@ -35,7 +36,7 @@ function MiniBar({ value, max = 100 }: { value: number; max?: number }) {
   );
 }
 
-export function SummaryCards({ summary }: Props) {
+export function SummaryCards({ summary, compact = false }: Props) {
   const organRate = useCountUp(summary.organMatchRate);
   const stainAcc = useCountUp(summary.stainAccuracy);
   const controlRate = useCountUp(summary.controlTissueRate);
@@ -112,6 +113,26 @@ export function SummaryCards({ summary }: Props) {
       ),
     },
   ];
+
+  if (compact) {
+    return (
+      <div className="grid grid-cols-5 gap-2 transition-all duration-300">
+        {cards.map((c) => (
+          <div
+            key={c.label}
+            className={`rounded-lg bg-gradient-to-br ${c.gradient} px-3 py-1.5 text-white shadow-sm`}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[9px] font-bold uppercase tracking-wider text-white/80 truncate">
+                {c.label}
+              </span>
+              <span className="text-base font-extrabold ml-2 shrink-0">{c.value}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5">

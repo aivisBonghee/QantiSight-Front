@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 import type { SlideCase } from "@/types/case";
-import { addComment, updateComment, deleteComment } from "@/lib/api-client";
+import { addComment, updateComment, deleteComment, updateCase } from "@/lib/api-client";
 import { stainMatches } from "@/lib/qc-utils";
 
 interface Props {
   slideCase: SlideCase;
   onClose: () => void;
   onCommentAdded?: () => void;
+  onCaseUpdated?: (updated: SlideCase) => void;
 }
 
 function AnimatedGauge({ value, color, size = 80 }: { value: number; color: string; size?: number }) {
@@ -195,7 +196,63 @@ function TagList({ items }: { items: string }) {
   );
 }
 
-export function CaseDetail({ slideCase, onClose, onCommentAdded }: Props) {
+type EditableFields = {
+  specimenNo: string;
+  patientName: string;
+  patientAge: string;
+  patientGender: string;
+  patientId: string;
+  examNo: string;
+  examDate: string;
+  hospitalCode: string;
+  organ: string;
+  stainType: string;
+  diagnosis: string;
+  pathologist: string;
+};
+
+function EditableField({ label, value, onChange, type = "text" }: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  type?: string;
+}) {
+  return (
+    <div className="flex items-center gap-2 text-[11px]">
+      <span className="text-gray-400 font-medium shrink-0 w-16">{label}</span>
+      <input
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="flex-1 font-semibold text-gray-700 border border-gray-300 rounded px-1.5 py-0.5 text-[11px] focus:outline-none focus:ring-1 focus:ring-[#355C94] bg-white"
+      />
+    </div>
+  );
+}
+
+function EditableSelect({ label, value, onChange, options }: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: { value: string; label: string }[];
+}) {
+  return (
+    <div className="flex items-center gap-2 text-[11px]">
+      <span className="text-gray-400 font-medium shrink-0 w-16">{label}</span>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="flex-1 font-semibold text-gray-700 border border-gray-300 rounded px-1.5 py-0.5 text-[11px] focus:outline-none focus:ring-1 focus:ring-[#355C94] bg-white"
+      >
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>{o.label}</option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+export function CaseDetail({ slideCase, onClose, onCommentAdded, onCaseUpdated }: Props) {
   const qc = slideCase.qcResult;
   const isDone = slideCase.status === "DONE";
   const currentStep = isDone ? 3 : slideCase.status === "PROCESSING" ? 1 : slideCase.status === "ERROR" ? 1 : 0;
@@ -205,6 +262,86 @@ export function CaseDetail({ slideCase, onClose, onCommentAdded }: Props) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
   const [showHeatmap, setShowHeatmap] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [editFields, setEditFields] = useState<EditableFields>({
+    specimenNo: slideCase.specimenNo ?? "",
+    patientName: slideCase.patientName,
+    patientAge: slideCase.patientAge?.toString() ?? "",
+    patientGender: slideCase.patientGender ?? "",
+    patientId: slideCase.patientId,
+    examNo: slideCase.examNo,
+    examDate: slideCase.examDate,
+    hospitalCode: slideCase.hospitalCode,
+    organ: slideCase.organ,
+    stainType: slideCase.stainType,
+    diagnosis: slideCase.diagnosis ?? "",
+    pathologist: slideCase.pathologist ?? "",
+  });
+
+  useEffect(() => {
+    setEditFields({
+      specimenNo: slideCase.specimenNo ?? "",
+      patientName: slideCase.patientName,
+      patientAge: slideCase.patientAge?.toString() ?? "",
+      patientGender: slideCase.patientGender ?? "",
+      patientId: slideCase.patientId,
+      examNo: slideCase.examNo,
+      examDate: slideCase.examDate,
+      hospitalCode: slideCase.hospitalCode,
+      organ: slideCase.organ,
+      stainType: slideCase.stainType,
+      diagnosis: slideCase.diagnosis ?? "",
+      pathologist: slideCase.pathologist ?? "",
+    });
+    setIsEditing(false);
+  }, [slideCase.id]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const updates: Record<string, unknown> = {};
+      if (editFields.specimenNo !== (slideCase.specimenNo ?? "")) updates.specimenNo = editFields.specimenNo;
+      if (editFields.patientName !== slideCase.patientName) updates.patientName = editFields.patientName;
+      if (editFields.patientId !== slideCase.patientId) updates.patientId = editFields.patientId;
+      if (editFields.patientAge !== (slideCase.patientAge?.toString() ?? "")) updates.patientAge = editFields.patientAge ? parseInt(editFields.patientAge) : null;
+      if (editFields.patientGender !== (slideCase.patientGender ?? "")) updates.patientGender = editFields.patientGender || null;
+      if (editFields.examNo !== slideCase.examNo) updates.examNo = editFields.examNo;
+      if (editFields.examDate !== slideCase.examDate) updates.examDate = editFields.examDate;
+      if (editFields.hospitalCode !== slideCase.hospitalCode) updates.hospitalCode = editFields.hospitalCode;
+      if (editFields.organ !== slideCase.organ) updates.organ = editFields.organ;
+      if (editFields.stainType !== slideCase.stainType) updates.stainType = editFields.stainType;
+      if (editFields.diagnosis !== (slideCase.diagnosis ?? "")) updates.diagnosis = editFields.diagnosis;
+      if (editFields.pathologist !== (slideCase.pathologist ?? "")) updates.pathologist = editFields.pathologist || null;
+      if (Object.keys(updates).length === 0) {
+        setIsEditing(false);
+        return;
+      }
+      const updated = await updateCase(slideCase.id, updates);
+      onCaseUpdated?.(updated);
+      setIsEditing(false);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditFields({
+      specimenNo: slideCase.specimenNo ?? "",
+      patientName: slideCase.patientName,
+      patientAge: slideCase.patientAge?.toString() ?? "",
+      patientGender: slideCase.patientGender ?? "",
+      patientId: slideCase.patientId,
+      examNo: slideCase.examNo,
+      examDate: slideCase.examDate,
+      hospitalCode: slideCase.hospitalCode,
+      organ: slideCase.organ,
+      stainType: slideCase.stainType,
+      diagnosis: slideCase.diagnosis ?? "",
+      pathologist: slideCase.pathologist ?? "",
+    });
+    setIsEditing(false);
+  };
 
   useEffect(() => {
     setLocalComments(slideCase.comments ?? []);
@@ -259,53 +396,117 @@ export function CaseDetail({ slideCase, onClose, onCommentAdded }: Props) {
             {slideCase.patientName} · {slideCase.organ} · {slideCase.stainType}
           </div>
         </div>
-        <button
-          onClick={onClose}
-          className="w-8 h-8 rounded-lg bg-white/15 hover:bg-white/30 flex items-center justify-center text-white transition-colors text-base font-bold"
-        >
-          ✕
-        </button>
+        <div className="flex items-center gap-1.5">
+          {isEditing ? (
+            <>
+              <button
+                onClick={handleCancelEdit}
+                className="text-[10px] font-bold px-2.5 py-1.5 rounded-lg bg-white/15 hover:bg-white/30 text-white transition-colors"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="text-[10px] font-bold px-2.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white transition-colors disabled:opacity-50"
+              >
+                {saving ? "저장 중..." : "저장"}
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={() => setIsEditing(true)}
+              className="text-[10px] font-bold px-2.5 py-1.5 rounded-lg bg-white/15 hover:bg-white/30 text-white transition-colors"
+            >
+              편집
+            </button>
+          )}
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-lg bg-white/15 hover:bg-white/30 flex items-center justify-center text-white transition-colors text-base font-bold"
+          >
+            ✕
+          </button>
+        </div>
       </div>
 
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto">
         {/* Patient & Requisition Info */}
         <Section title="환자 / 의뢰 정보">
-          <div className="flex flex-col gap-1.5">
-            <div className="grid grid-cols-2 gap-x-3 gap-y-1">
-              <InfoRow label="환자 ID" value={slideCase.patientId} />
-              <InfoRow label="검사번호" value={slideCase.examNo} />
-              <InfoRow label="검사일" value={slideCase.examDate} />
-              <InfoRow label="병원" value={slideCase.hospitalCode} />
+          {isEditing ? (
+            <div className="flex flex-col gap-2">
+              <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+                <EditableField label="조직번호" value={editFields.specimenNo} onChange={(v) => setEditFields((p) => ({ ...p, specimenNo: v }))} />
+                <EditableField label="환자명" value={editFields.patientName} onChange={(v) => setEditFields((p) => ({ ...p, patientName: v }))} />
+                <EditableField label="나이" value={editFields.patientAge} onChange={(v) => setEditFields((p) => ({ ...p, patientAge: v }))} type="number" />
+                <EditableSelect label="성별" value={editFields.patientGender} onChange={(v) => setEditFields((p) => ({ ...p, patientGender: v }))} options={[
+                  { value: "", label: "-" }, { value: "M", label: "남" }, { value: "F", label: "여" },
+                ]} />
+                <EditableField label="차트번호" value={editFields.patientId} onChange={(v) => setEditFields((p) => ({ ...p, patientId: v }))} />
+                <EditableField label="검사번호" value={editFields.examNo} onChange={(v) => setEditFields((p) => ({ ...p, examNo: v }))} />
+                <EditableField label="접수일자" value={editFields.examDate} onChange={(v) => setEditFields((p) => ({ ...p, examDate: v }))} />
+                <EditableField label="병원" value={editFields.hospitalCode} onChange={(v) => setEditFields((p) => ({ ...p, hospitalCode: v }))} />
+                <EditableSelect label="장기" value={editFields.organ} onChange={(v) => setEditFields((p) => ({ ...p, organ: v }))} options={[
+                  { value: "Breast", label: "Breast" }, { value: "Stomach", label: "Stomach" },
+                  { value: "Colon", label: "Colon" }, { value: "Lung", label: "Lung" },
+                  { value: "Kidney", label: "Kidney" }, { value: "Thyroid", label: "Thyroid" },
+                  { value: "Bladder", label: "Bladder" }, { value: "Brain", label: "Brain" },
+                ]} />
+                <EditableSelect label="염색" value={editFields.stainType} onChange={(v) => setEditFields((p) => ({ ...p, stainType: v }))} options={[
+                  { value: "HE", label: "HE" }, { value: "IHC-HER2", label: "IHC-HER2" },
+                  { value: "IHC-ER", label: "IHC-ER" }, { value: "IHC-PR", label: "IHC-PR" },
+                  { value: "IHC-KI67", label: "IHC-KI67" },
+                ]} />
+                <EditableField label="판독의" value={editFields.pathologist} onChange={(v) => setEditFields((p) => ({ ...p, pathologist: v }))} />
+                <EditableField label="진단" value={editFields.diagnosis} onChange={(v) => setEditFields((p) => ({ ...p, diagnosis: v }))} />
+              </div>
             </div>
-            {slideCase.suspectedDisease && (
-              <div className="mt-1">
-                <InfoRow label="의심 질환" value={slideCase.suspectedDisease} />
+          ) : (
+            <div className="flex flex-col gap-1.5">
+              <div className="grid grid-cols-2 gap-x-3 gap-y-1">
+                <InfoRow label="조직번호" value={slideCase.specimenNo} />
+                <InfoRow label="환자명" value={slideCase.patientName} />
+                <InfoRow label="나이" value={slideCase.patientAge?.toString()} />
+                <InfoRow label="성별" value={slideCase.patientGender === "M" ? "남" : slideCase.patientGender === "F" ? "여" : slideCase.patientGender} />
+                <InfoRow label="차트번호" value={slideCase.patientId} />
+                <InfoRow label="검사번호" value={slideCase.examNo} />
+                <InfoRow label="접수일자" value={slideCase.examDate} />
+                <InfoRow label="병원" value={slideCase.hospitalCode} />
+                <InfoRow label="장기" value={slideCase.organ} />
+                <InfoRow label="염색" value={slideCase.stainType} />
+                <InfoRow label="판독의" value={slideCase.pathologist} />
+                <InfoRow label="진단" value={slideCase.diagnosis} />
               </div>
-            )}
-            {slideCase.requestedStains && (
-              <div className="mt-1">
-                <span className="text-[11px] text-gray-400 font-medium">의뢰 염색</span>
-                <div className="mt-0.5"><TagList items={slideCase.requestedStains} /></div>
-              </div>
-            )}
-            {slideCase.ihcMarkers && (
-              <div className="mt-1">
-                <span className="text-[11px] text-gray-400 font-medium">IHC 마커</span>
-                <div className="mt-0.5"><TagList items={slideCase.ihcMarkers} /></div>
-              </div>
-            )}
-            {slideCase.molecularTest && (
-              <div className="mt-1">
-                <InfoRow label="분자병리" value={slideCase.molecularTest} />
-              </div>
-            )}
-            {slideCase.clinicalInfo && (
-              <div className="mt-1.5 p-2 bg-gray-50 rounded text-[11px] text-gray-600 leading-relaxed">
-                {slideCase.clinicalInfo}
-              </div>
-            )}
-          </div>
+              {slideCase.suspectedDisease && (
+                <div className="mt-1">
+                  <InfoRow label="의심 질환" value={slideCase.suspectedDisease} />
+                </div>
+              )}
+              {slideCase.requestedStains && (
+                <div className="mt-1">
+                  <span className="text-[11px] text-gray-400 font-medium">의뢰 염색</span>
+                  <div className="mt-0.5"><TagList items={slideCase.requestedStains} /></div>
+                </div>
+              )}
+              {slideCase.ihcMarkers && (
+                <div className="mt-1">
+                  <span className="text-[11px] text-gray-400 font-medium">IHC 마커</span>
+                  <div className="mt-0.5"><TagList items={slideCase.ihcMarkers} /></div>
+                </div>
+              )}
+              {slideCase.molecularTest && (
+                <div className="mt-1">
+                  <InfoRow label="분자병리" value={slideCase.molecularTest} />
+                </div>
+              )}
+              {slideCase.clinicalInfo && (
+                <div className="mt-1.5 p-2 bg-gray-50 rounded text-[11px] text-gray-600 leading-relaxed">
+                  {slideCase.clinicalInfo}
+                </div>
+              )}
+            </div>
+          )}
         </Section>
 
         {/* Pipeline */}

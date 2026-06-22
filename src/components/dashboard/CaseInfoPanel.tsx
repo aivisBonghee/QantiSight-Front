@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { SlideCase } from "@/types/case";
 import { stainMatches, getQcVerdict } from "@/lib/qc-utils";
-import { addComment, updateComment, deleteComment } from "@/lib/api-client";
+import { addComment, updateComment, deleteComment, updateCase } from "@/lib/api-client";
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 
 function MatchText({ match, label }: { match: boolean; label: string }) {
@@ -27,15 +27,108 @@ interface Props {
   slideCase: SlideCase;
   onClose: () => void;
   onCommentAdded?: () => void;
+  onCaseUpdated?: (updated: SlideCase) => void;
 }
 
-export function CaseInfoPanel({ slideCase, onClose, onCommentAdded }: Props) {
+type EditFields = {
+  specimenNo: string;
+  patientName: string;
+  patientAge: string;
+  patientGender: string;
+  patientId: string;
+  examNo: string;
+  examDate: string;
+  hospitalCode: string;
+  organ: string;
+  stainType: string;
+  diagnosis: string;
+  pathologist: string;
+};
+
+function initEditFields(c: SlideCase): EditFields {
+  return {
+    specimenNo: c.specimenNo ?? "",
+    patientName: c.patientName,
+    patientAge: c.patientAge?.toString() ?? "",
+    patientGender: c.patientGender ?? "",
+    patientId: c.patientId,
+    examNo: c.examNo,
+    examDate: c.examDate,
+    hospitalCode: c.hospitalCode,
+    organ: c.organ,
+    stainType: c.stainType,
+    diagnosis: c.diagnosis ?? "",
+    pathologist: c.pathologist ?? "",
+  };
+}
+
+function EditInput({ value, onChange, type = "text", className = "" }: {
+  value: string; onChange: (v: string) => void; type?: string; className?: string;
+}) {
+  return (
+    <input
+      type={type}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className={`w-full h-5 px-1.5 rounded border border-blue-300 text-[11px] font-bold text-gray-900 outline-none focus:ring-1 focus:ring-[#355C94] bg-blue-50/50 ${className}`}
+    />
+  );
+}
+
+function EditSelect({ value, onChange, options }: {
+  value: string; onChange: (v: string) => void; options: { value: string; label: string }[];
+}) {
+  return (
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="w-full h-5 px-1 rounded border border-blue-300 text-[11px] font-bold text-gray-900 outline-none focus:ring-1 focus:ring-[#355C94] bg-blue-50/50"
+    >
+      {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+    </select>
+  );
+}
+
+export function CaseInfoPanel({ slideCase, onClose, onCommentAdded, onCaseUpdated }: Props) {
   const qc = slideCase.qcResult;
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editFields, setEditFields] = useState<EditFields>(() => initEditFields(slideCase));
+
+  useEffect(() => {
+    setEditFields(initEditFields(slideCase));
+    setIsEditing(false);
+  }, [slideCase.id]);
+
+  const handleSaveEdit = async () => {
+    setIsSaving(true);
+    try {
+      const updates: Record<string, unknown> = {};
+      const ef = editFields;
+      if (ef.specimenNo !== (slideCase.specimenNo ?? "")) updates.specimenNo = ef.specimenNo;
+      if (ef.patientName !== slideCase.patientName) updates.patientName = ef.patientName;
+      if (ef.patientId !== slideCase.patientId) updates.patientId = ef.patientId;
+      if (ef.patientAge !== (slideCase.patientAge?.toString() ?? "")) updates.patientAge = ef.patientAge ? parseInt(ef.patientAge) : null;
+      if (ef.patientGender !== (slideCase.patientGender ?? "")) updates.patientGender = ef.patientGender || null;
+      if (ef.examNo !== slideCase.examNo) updates.examNo = ef.examNo;
+      if (ef.examDate !== slideCase.examDate) updates.examDate = ef.examDate;
+      if (ef.hospitalCode !== slideCase.hospitalCode) updates.hospitalCode = ef.hospitalCode;
+      if (ef.organ !== slideCase.organ) updates.organ = ef.organ;
+      if (ef.stainType !== slideCase.stainType) updates.stainType = ef.stainType;
+      if (ef.diagnosis !== (slideCase.diagnosis ?? "")) updates.diagnosis = ef.diagnosis;
+      if (ef.pathologist !== (slideCase.pathologist ?? "")) updates.pathologist = ef.pathologist || null;
+      if (Object.keys(updates).length === 0) { setIsEditing(false); return; }
+      const updated = await updateCase(slideCase.id, updates);
+      onCaseUpdated?.(updated);
+      setIsEditing(false);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const verdict = getQcVerdict(slideCase);
   const missingFields: string[] = [];
@@ -94,12 +187,38 @@ export function CaseInfoPanel({ slideCase, onClose, onCommentAdded }: Props) {
               : "대기"}
           </span>
         </div>
-        <button
-          onClick={onClose}
-          className="w-7 h-7 rounded-lg bg-white/15 hover:bg-white/30 flex items-center justify-center text-white transition-colors text-sm font-bold cursor-pointer"
-        >
-          ✕
-        </button>
+        <div className="flex items-center gap-1.5">
+          {isEditing ? (
+            <>
+              <button
+                onClick={() => { setEditFields(initEditFields(slideCase)); setIsEditing(false); }}
+                className="text-[10px] font-bold px-2 py-1 rounded-lg bg-white/15 hover:bg-white/30 text-white transition-colors cursor-pointer"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                disabled={isSaving}
+                className="text-[10px] font-bold px-2 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white transition-colors disabled:opacity-50 cursor-pointer"
+              >
+                {isSaving ? "저장 중..." : "저장"}
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={() => setIsEditing(true)}
+              className="text-[10px] font-bold px-2 py-1 rounded-lg bg-white/15 hover:bg-white/30 text-white transition-colors cursor-pointer"
+            >
+              편집
+            </button>
+          )}
+          <button
+            onClick={onClose}
+            className="w-7 h-7 rounded-lg bg-white/15 hover:bg-white/30 flex items-center justify-center text-white transition-colors text-sm font-bold cursor-pointer"
+          >
+            ✕
+          </button>
+        </div>
       </div>
 
       {/* Content */}
@@ -108,49 +227,110 @@ export function CaseInfoPanel({ slideCase, onClose, onCommentAdded }: Props) {
         <div className="flex-1 min-w-0">
           {/* Row 1: Patient info */}
           <div className="grid grid-cols-6 gap-x-4 gap-y-1.5 pb-2 border-b border-gray-100">
-            <Field label="조직번호" value={slideCase.specimenNo || slideCase.slideId} />
-            <Field label="환자명" value={slideCase.patientName} />
-            <Field label="나이/성별" value={
-              slideCase.patientAge || slideCase.patientGender
-                ? [slideCase.patientAge ? `${slideCase.patientAge}세` : null, slideCase.patientGender].filter(Boolean).join(" / ")
-                : "-"
-            } />
-            <Field label="차트번호" value={slideCase.patientId} />
-            <Field label="접수일자" value={slideCase.examDate} />
-            <Field label="판독의" value={slideCase.pathologist} />
+            {isEditing ? (
+              <>
+                <div>
+                  <div className="text-[9px] text-gray-500 font-medium mb-0.5">조직번호</div>
+                  <EditInput value={editFields.specimenNo} onChange={(v) => setEditFields((p) => ({ ...p, specimenNo: v }))} />
+                </div>
+                <div>
+                  <div className="text-[9px] text-gray-500 font-medium mb-0.5">환자명</div>
+                  <EditInput value={editFields.patientName} onChange={(v) => setEditFields((p) => ({ ...p, patientName: v }))} />
+                </div>
+                <div>
+                  <div className="text-[9px] text-gray-500 font-medium mb-0.5">나이/성별</div>
+                  <div className="flex gap-1">
+                    <EditInput value={editFields.patientAge} onChange={(v) => setEditFields((p) => ({ ...p, patientAge: v }))} type="number" className="w-12" />
+                    <EditSelect value={editFields.patientGender} onChange={(v) => setEditFields((p) => ({ ...p, patientGender: v }))} options={[
+                      { value: "", label: "-" }, { value: "M", label: "남" }, { value: "F", label: "여" },
+                    ]} />
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[9px] text-gray-500 font-medium mb-0.5">차트번호</div>
+                  <EditInput value={editFields.patientId} onChange={(v) => setEditFields((p) => ({ ...p, patientId: v }))} />
+                </div>
+                <div>
+                  <div className="text-[9px] text-gray-500 font-medium mb-0.5">접수일자</div>
+                  <EditInput value={editFields.examDate} onChange={(v) => setEditFields((p) => ({ ...p, examDate: v }))} />
+                </div>
+                <div>
+                  <div className="text-[9px] text-gray-500 font-medium mb-0.5">판독의</div>
+                  <EditInput value={editFields.pathologist} onChange={(v) => setEditFields((p) => ({ ...p, pathologist: v }))} />
+                </div>
+              </>
+            ) : (
+              <>
+                <Field label="조직번호" value={slideCase.specimenNo || slideCase.slideId} />
+                <Field label="환자명" value={slideCase.patientName} />
+                <Field label="나이/성별" value={
+                  slideCase.patientAge || slideCase.patientGender
+                    ? [slideCase.patientAge ? `${slideCase.patientAge}세` : null, slideCase.patientGender].filter(Boolean).join(" / ")
+                    : "-"
+                } />
+                <Field label="차트번호" value={slideCase.patientId} />
+                <Field label="접수일자" value={slideCase.examDate} />
+                <Field label="판독의" value={slideCase.pathologist} />
+              </>
+            )}
           </div>
 
           {/* Row 2: QC info */}
           <div className="grid grid-cols-5 gap-x-6 gap-y-1.5 pt-2 pb-2 border-b border-gray-100">
-            <Field
-              label="장기"
-              value={
-                qc ? (
-                  <div className="flex items-center gap-1.5">
-                    <MatchText match={qc.organMatch} label={qc.detectedOrgan} />
-                    <span className="text-[9px] text-gray-400">의뢰: {slideCase.organ || "-"}</span>
-                  </div>
-                ) : (
-                  slideCase.organ || "-"
-                )
-              }
-            />
-            <Field
-              label="염색"
-              value={
-                qc ? (
-                  <div className="flex items-center gap-1.5">
-                    <MatchText
-                      match={stainMatches(qc.stainClassification, slideCase.stainType)}
-                      label={qc.stainClassification}
-                    />
-                    <span className="text-[9px] text-gray-400">의뢰: {slideCase.stainType || "-"}</span>
-                  </div>
-                ) : (
-                  slideCase.stainType || "-"
-                )
-              }
-            />
+            {isEditing ? (
+              <div>
+                <div className="text-[9px] text-gray-500 font-medium mb-0.5">장기 (의뢰)</div>
+                <EditSelect value={editFields.organ} onChange={(v) => setEditFields((p) => ({ ...p, organ: v }))} options={[
+                  { value: "Breast", label: "Breast" }, { value: "Stomach", label: "Stomach" },
+                  { value: "Colon", label: "Colon" }, { value: "Lung", label: "Lung" },
+                  { value: "Kidney", label: "Kidney" }, { value: "Thyroid", label: "Thyroid" },
+                  { value: "Bladder", label: "Bladder" }, { value: "Brain", label: "Brain" },
+                ]} />
+                {qc && <div className="text-[9px] text-gray-400 mt-0.5">AI 검출: {qc.detectedOrgan}</div>}
+              </div>
+            ) : (
+              <Field
+                label="장기"
+                value={
+                  qc ? (
+                    <div className="flex items-center gap-1.5">
+                      <MatchText match={qc.organMatch} label={qc.detectedOrgan} />
+                      <span className="text-[9px] text-gray-400">의뢰: {slideCase.organ || "-"}</span>
+                    </div>
+                  ) : (
+                    slideCase.organ || "-"
+                  )
+                }
+              />
+            )}
+            {isEditing ? (
+              <div>
+                <div className="text-[9px] text-gray-500 font-medium mb-0.5">염색 (의뢰)</div>
+                <EditSelect value={editFields.stainType} onChange={(v) => setEditFields((p) => ({ ...p, stainType: v }))} options={[
+                  { value: "HE", label: "HE" }, { value: "IHC-HER2", label: "IHC-HER2" },
+                  { value: "IHC-ER", label: "IHC-ER" }, { value: "IHC-PR", label: "IHC-PR" },
+                  { value: "IHC-KI67", label: "IHC-KI67" },
+                ]} />
+                {qc && <div className="text-[9px] text-gray-400 mt-0.5">AI 검출: {qc.stainClassification}</div>}
+              </div>
+            ) : (
+              <Field
+                label="염색"
+                value={
+                  qc ? (
+                    <div className="flex items-center gap-1.5">
+                      <MatchText
+                        match={stainMatches(qc.stainClassification, slideCase.stainType)}
+                        label={qc.stainClassification}
+                      />
+                      <span className="text-[9px] text-gray-400">의뢰: {slideCase.stainType || "-"}</span>
+                    </div>
+                  ) : (
+                    slideCase.stainType || "-"
+                  )
+                }
+              />
+            )}
             <Field
               label="QC 점수"
               value={

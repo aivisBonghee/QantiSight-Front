@@ -178,7 +178,7 @@ function Dashboard() {
           >
             {/* 상단 고정 영역: 요약카드 + 검색바 */}
             <div className="shrink-0 flex flex-col gap-3 md:gap-4 w-full">
-              <SummaryCards summary={summary ?? {
+              <SummaryCards compact={!!selected} summary={summary ?? {
                 totalCases: 0, organMatchRate: 0, organMismatchCount: 0,
                 stainAccuracy: 0, avgLesionRatio: 0,
                 lesionDistribution: { low: 0, moderate: 0, high: 0 },
@@ -199,6 +199,10 @@ function Dashboard() {
                     qc.invalidateQueries({ queryKey: ["cases"] });
                     const updated = await fetchCase(selected.id);
                     setSelected(updated);
+                  }}
+                  onCaseUpdated={(updated) => {
+                    setSelected(updated);
+                    qc.invalidateQueries({ queryKey: ["cases"] });
                   }}
                 />
               </div>

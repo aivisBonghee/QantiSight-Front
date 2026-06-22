@@ -238,6 +238,37 @@ export async function deleteComment(
   if (!res.ok) throw new Error("Failed to delete comment");
 }
 
+export async function updateCase(
+  caseId: string,
+  updates: Record<string, unknown>,
+): Promise<SlideCase> {
+  const snakeUpdates: Record<string, unknown> = {};
+  const keyMap: Record<string, string> = {
+    specimenNo: "specimen_no",
+    hospitalCode: "hospital_code",
+    patientId: "patient_id",
+    patientName: "patient_name",
+    patientAge: "patient_age",
+    patientGender: "patient_gender",
+    examNo: "exam_no",
+    examDate: "exam_date",
+    stainType: "stain_type",
+    suspectedDisease: "suspected_disease",
+    clinicalInfo: "clinical_info",
+  };
+  for (const [k, v] of Object.entries(updates)) {
+    snakeUpdates[keyMap[k] ?? k] = v;
+  }
+  const res = await fetch(`/api/cases/${caseId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(snakeUpdates),
+  });
+  if (!res.ok) throw new Error("Failed to update case");
+  const data: ApiCaseResponse = await res.json();
+  return mapCase(data);
+}
+
 export async function deleteCases(ids: string[]): Promise<void> {
   const params = new URLSearchParams();
   ids.forEach((id) => params.append("ids", id));
