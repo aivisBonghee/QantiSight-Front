@@ -191,7 +191,7 @@ export function FilterPanel({ totalCount, onClose, onCollapse }: Props) {
               <div className="flex flex-col gap-1">
                 {([
                   { key: "pass" as const, label: "Pass", color: "#1a3a5c" },
-                  { key: "conditional" as const, label: "주의", color: "#FFCF0F" },
+                  { key: "conditional" as const, label: "주의", color: "#F59E0B" },
                   { key: "rescan" as const, label: "재스캔", color: "#FF8C00" },
                 ] as const).map(({ key, label, color }) => (
                   <div key={key} className="flex items-center gap-1.5">

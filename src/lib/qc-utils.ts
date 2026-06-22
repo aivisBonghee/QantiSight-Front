@@ -20,7 +20,7 @@ export function getQcScoreGrade(score: number | null | undefined, t: QcThreshold
 export function getQcScoreColor(score: number | null | undefined, t: QcThresholds = QC_THRESHOLDS): string {
   switch (getQcScoreGrade(score, t)) {
     case "pass": return "#1a3a5c";
-    case "conditional": return "#FFCF0F";
+    case "conditional": return "#F59E0B";
     case "rescan": return "#FF8C00";
     case "fail": return "#FF4242";
   }
@@ -29,7 +29,7 @@ export function getQcScoreColor(score: number | null | undefined, t: QcThreshold
 export function getQcScoreTextClass(score: number | null | undefined, t: QcThresholds = QC_THRESHOLDS): string {
   switch (getQcScoreGrade(score, t)) {
     case "pass": return "text-gray-900";
-    case "conditional": return "text-yellow-600";
+    case "conditional": return "text-amber-500";
     case "rescan": return "text-orange-500";
     case "fail": return "text-red-600";
   }
