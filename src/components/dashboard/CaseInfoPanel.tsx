@@ -485,8 +485,14 @@ export function CaseInfoPanel({ slideCase, onClose, onCommentAdded, onCaseUpdate
           </div>
         </div>
 
-        {/* Right: Thumbnail */}
+        {/* Right: QC Score + Thumbnail */}
         <div className="shrink-0 w-[200px] flex flex-col gap-2">
+          {qc?.overallQcScore != null && (
+            <div className="flex items-center justify-between px-2 py-1.5 rounded-lg border" style={{ borderColor: qcS.getColor(qc.overallQcScore) }}>
+              <span className="text-[10px] text-gray-500 font-medium">QC Score</span>
+              <span className={`text-lg font-extrabold ${qcS.getTextClass(qc.overallQcScore)}`}>{qc.overallQcScore}</span>
+            </div>
+          )}
           {slideCase.thumbnailPath ? (
             <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
               <img
@@ -541,15 +547,6 @@ export function CaseInfoPanel({ slideCase, onClose, onCommentAdded, onCaseUpdate
                   {showHeatmap ? "Heatmap OFF" : "Heatmap ON"}
                 </button>
               )}
-              {qc?.overallQcScore ? (
-                <div
-                  className="absolute top-1.5 right-1.5 w-9 h-9 rounded-lg flex flex-col items-center justify-center shadow-md"
-                  style={{ backgroundColor: qcS.getColor(qc.overallQcScore) }}
-                >
-                  <span className="text-white text-[11px] font-extrabold">{qc.overallQcScore}</span>
-                  <span className="text-white/70 text-[5px] font-medium">QC</span>
-                </div>
-              ) : null}
             </div>
           ) : (
             <div className="w-full aspect-[4/3] rounded-lg border-2 border-dashed border-gray-200 flex items-center justify-center bg-gray-50">
