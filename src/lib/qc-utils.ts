@@ -60,8 +60,8 @@ export function displayStain(stain: string | null | undefined): string {
 export function stainMatches(classification: string | undefined, caseStain: string): boolean {
   if (!classification || classification === "uncertain") return false;
   if (classification === "HE") return caseStain === "HE";
-  if (classification === "IHC-nuclear") return ["IHC-ER", "IHC-PR", "IHC-KI67"].includes(caseStain);
-  if (classification === "IHC-membrane") return caseStain === "IHC-HER2";
+  if (classification === "IHC-nuclear") return caseStain === "IHC-nuclear" || ["IHC-ER", "IHC-PR", "IHC-KI67"].includes(caseStain);
+  if (classification === "IHC-membrane") return caseStain === "IHC-membrane" || caseStain === "IHC-HER2";
   return classification === caseStain;
 }
 
