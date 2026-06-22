@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Header } from "@/components/layout/Header";
 import { PanelLeftOpen } from "lucide-react";
@@ -18,23 +18,7 @@ const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 10_000, retry: 1 } },
 });
 
-const ROW_HEIGHT = 44;
-const HEADER_AND_CARDS_HEIGHT = 320;
-
-function usePageSize() {
-  const [size, setSize] = useState(20);
-  useEffect(() => {
-    function calc() {
-      const available = window.innerHeight - HEADER_AND_CARDS_HEIGHT;
-      const rows = Math.max(10, Math.floor(available / ROW_HEIGHT));
-      setSize(rows);
-    }
-    calc();
-    window.addEventListener("resize", calc);
-    return () => window.removeEventListener("resize", calc);
-  }, []);
-  return size;
-}
+const PAGE_SIZE = 20;
 
 function Dashboard() {
   const filters = useFilters();
@@ -45,7 +29,7 @@ function Dashboard() {
   const [page, setPage] = useState(1);
   const [sortKey, setSortKey] = useState("date");
   const [sortDir, setSortDir] = useState("desc");
-  const pageSize = usePageSize();
+  const pageSize = PAGE_SIZE;
 
   const filtersKey = JSON.stringify({
     search: filters.search,
