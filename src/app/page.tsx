@@ -57,6 +57,7 @@ function Dashboard() {
     stainMatch: filters.stainMatch,
     controlTissue: filters.controlTissue,
     qcGrade: filters.qcGrade,
+    qcThresholds: filters.qcThresholds,
     serverLocation: filters.serverLocation,
     hasIssue: filters.hasIssue,
     pathologist: filters.pathologist,

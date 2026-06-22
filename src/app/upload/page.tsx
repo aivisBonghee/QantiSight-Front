@@ -6,7 +6,7 @@ import { useUploadStore, type UploadItem } from "@/hooks/useUploadStore";
 
 const ACCEPTED = ".svs,.tiff,.tif,.ndpi,.mrxs,.scn,.bif,.vsi,.dcm";
 const ORGANS = ["Stomach", "Colon", "Breast", "Lung", "Kidney"];
-const STAINS = ["HE", "IHC-HER2", "IHC-ER", "IHC-PR", "IHC-KI67"];
+const STAINS = ["HE", "IHC-membrane", "IHC-nuclear"];
 
 function splitCSVRow(line: string): string[] {
   const result: string[] = [];
@@ -110,7 +110,7 @@ export default function UploadPage() {
 
   const downloadTemplate = () => {
     const header = "검체번호,차트번호,환자명,나이,성별,장기,염색,판독의";
-    const example = "예시_S24-12345,12345678,홍길동,65,M,Breast,IHC-HER2,김의사";
+    const example = "예시_S24-12345,12345678,홍길동,65,M,Breast,IHC-membrane,김의사";
     const rows = items
       .filter((f) => f.status === "pending")
       .map((f) => {

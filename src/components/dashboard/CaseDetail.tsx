@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import type { SlideCase } from "@/types/case";
 import { addComment, updateComment, deleteComment, updateCase } from "@/lib/api-client";
-import { stainMatches } from "@/lib/qc-utils";
+import { stainMatches, useQcScore, displayStain } from "@/lib/qc-utils";
 
 interface Props {
   slideCase: SlideCase;
@@ -107,9 +107,7 @@ function PipelineSteps({ current }: { current: number }) {
   );
 }
 
-function MockSlidePreview({ qcScore }: { qcScore: number | null }) {
-  const s = qcScore ?? 0;
-  const scoreColor = s >= 80 ? "#27BE69" : s >= 60 ? "#FFCF0F" : "#FF4242";
+function MockSlidePreview({ qcScore, scoreColor }: { qcScore: number | null; scoreColor: string }) {
 
   return (
     <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden bg-gradient-to-br from-[#f0e4f5] via-[#e8d0e8] to-[#d8c0d8]">
@@ -253,6 +251,7 @@ function EditableSelect({ label, value, onChange, options }: {
 }
 
 export function CaseDetail({ slideCase, onClose, onCommentAdded, onCaseUpdated }: Props) {
+  const qcS = useQcScore();
   const qc = slideCase.qcResult;
   const isDone = slideCase.status === "DONE";
   const currentStep = isDone ? 3 : slideCase.status === "PROCESSING" ? 1 : slideCase.status === "ERROR" ? 1 : 0;
@@ -393,7 +392,7 @@ export function CaseDetail({ slideCase, onClose, onCommentAdded, onCaseUpdated }
         <div>
           <div className="font-mono text-sm font-bold">{slideCase.specimenNo || slideCase.slideId}</div>
           <div className="text-[10px] text-white/60 mt-0.5">
-            {slideCase.patientName} · {slideCase.organ} · {slideCase.stainType}
+            {slideCase.patientName} · {slideCase.organ} · {displayStain(slideCase.stainType)}
           </div>
         </div>
         <div className="flex items-center gap-1.5">
@@ -453,7 +452,7 @@ export function CaseDetail({ slideCase, onClose, onCommentAdded, onCaseUpdated }
                 </div>
                 <div className="flex items-center gap-2 text-[11px]">
                   <span className="text-gray-400 font-medium shrink-0 w-16">염색</span>
-                  <span className="font-semibold text-gray-500">{slideCase.stainType}</span>
+                  <span className="font-semibold text-gray-500">{displayStain(slideCase.stainType)}</span>
                 </div>
                 <EditableField label="판독의" value={editFields.pathologist} onChange={(v) => setEditFields((p) => ({ ...p, pathologist: v }))} />
                 <EditableField label="진단" value={editFields.diagnosis} onChange={(v) => setEditFields((p) => ({ ...p, diagnosis: v }))} />
@@ -471,7 +470,7 @@ export function CaseDetail({ slideCase, onClose, onCommentAdded, onCaseUpdated }
                 <InfoRow label="접수일자" value={slideCase.examDate} />
                 <InfoRow label="병원" value={slideCase.hospitalCode} />
                 <InfoRow label="장기" value={slideCase.organ} />
-                <InfoRow label="염색" value={slideCase.stainType} />
+                <InfoRow label="염색" value={displayStain(slideCase.stainType)} />
                 <InfoRow label="판독의" value={slideCase.pathologist} />
                 <InfoRow label="진단" value={slideCase.diagnosis} />
               </div>
@@ -543,7 +542,7 @@ export function CaseDetail({ slideCase, onClose, onCommentAdded, onCaseUpdated }
                 <div
                   className="absolute top-2 right-2 w-11 h-11 rounded-xl flex flex-col items-center justify-center shadow-lg"
                   style={{
-                    backgroundColor: (qc.overallQcScore ?? 0) >= 80 ? "#27BE69" : (qc.overallQcScore ?? 0) >= 60 ? "#FFCF0F" : "#FF4242",
+                    backgroundColor: qcS.getColor(qc.overallQcScore),
                   }}
                 >
                   <span className="text-white text-sm font-extrabold">{qc.overallQcScore ?? "-"}</span>
@@ -552,7 +551,7 @@ export function CaseDetail({ slideCase, onClose, onCommentAdded, onCaseUpdated }
               )}
             </div>
           ) : qc ? (
-            <MockSlidePreview qcScore={qc.overallQcScore} />
+            <MockSlidePreview qcScore={qc.overallQcScore} scoreColor={qcS.getColor(qc.overallQcScore)} />
           ) : (
             <div className="aspect-[4/3] rounded-lg border-2 border-dashed border-gray-200 flex items-center justify-center bg-gray-50">
               <div className="text-center text-gray-400">
@@ -571,7 +570,7 @@ export function CaseDetail({ slideCase, onClose, onCommentAdded, onCaseUpdated }
                 <div className="flex items-center gap-4">
                   <AnimatedGauge
                     value={qc.overallQcScore}
-                    color={qc.overallQcScore >= 80 ? "#27BE69" : qc.overallQcScore >= 60 ? "#FFCF0F" : "#FF4242"}
+                    color={qcS.getColor(qc.overallQcScore)}
                   />
                   <div className="flex-1 flex flex-col gap-2">
                     {qc.focusScore ? <AnimatedBar label="Focus Score" value={qc.focusScore} color={qc.focusScore >= 70 ? "bg-[#1a3a5c]" : "bg-red-400"} /> : null}
@@ -615,7 +614,7 @@ export function CaseDetail({ slideCase, onClose, onCommentAdded, onCaseUpdated }
             <div className="text-[9px] text-gray-400 uppercase tracking-widest font-bold mb-2">염색</div>
             {qc ? (
               <div className="flex flex-col gap-1.5">
-                <div className="text-[10px] text-gray-500">의뢰: <span className="font-bold text-gray-700">{slideCase.stainType}</span></div>
+                <div className="text-[10px] text-gray-500">의뢰: <span className="font-bold text-gray-700">{displayStain(slideCase.stainType)}</span></div>
                 <div className="flex items-center gap-2">
                   <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full ${
                     stainMatches(qc.stainClassification, slideCase.stainType) ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"

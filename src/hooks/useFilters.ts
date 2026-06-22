@@ -7,6 +7,7 @@ import type {
   OrganMatchFilter,
   ControlTissueFilter,
   QcGrade,
+  QcThresholds,
   ServerLocation,
 } from "@/types/case";
 
@@ -19,6 +20,7 @@ interface FilterState extends CaseFilters {
   setStainMatch: (v: OrganMatchFilter | null) => void;
   setControlTissue: (v: ControlTissueFilter | null) => void;
   setQcGrade: (v: QcGrade | null) => void;
+  setQcThresholds: (v: QcThresholds) => void;
   setServerLocation: (v: ServerLocation | null) => void;
   toggleHasIssue: () => void;
   setPathologist: (v: string | null) => void;
@@ -35,6 +37,7 @@ const initial: CaseFilters = {
   stainMatch: null,
   controlTissue: null,
   qcGrade: null,
+  qcThresholds: { pass: 85, conditional: 70, rescan: 50 },
   serverLocation: null,
   hasIssue: false,
   pathologist: null,
@@ -65,6 +68,7 @@ export const useFilters = create<FilterState>((set) => ({
   setStainMatch: (v) => set((s) => ({ stainMatch: s.stainMatch === v ? null : v })),
   setControlTissue: (v) => set((s) => ({ controlTissue: s.controlTissue === v ? null : v })),
   setQcGrade: (v) => set((s) => ({ qcGrade: s.qcGrade === v ? null : v })),
+  setQcThresholds: (v) => set({ qcThresholds: v }),
   setServerLocation: (v) => set((s) => ({ serverLocation: s.serverLocation === v ? null : v })),
   toggleHasIssue: () => set((s) => ({ hasIssue: !s.hasIssue })),
   setPathologist: (v) => set({ pathologist: v }),

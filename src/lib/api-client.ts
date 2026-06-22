@@ -136,7 +136,12 @@ function buildFilterParams(filters: CaseFilters): URLSearchParams {
   if (filters.organMatch) params.set("organ_match", filters.organMatch);
   if (filters.stainMatch) params.set("stain_match", filters.stainMatch);
   if (filters.controlTissue) params.set("control_tissue", filters.controlTissue);
-  if (filters.qcGrade) params.set("qc_grade", filters.qcGrade);
+  if (filters.qcGrade) {
+    params.set("qc_grade", filters.qcGrade);
+    params.set("qc_t_pass", String(filters.qcThresholds.pass));
+    params.set("qc_t_conditional", String(filters.qcThresholds.conditional));
+    params.set("qc_t_rescan", String(filters.qcThresholds.rescan));
+  }
   if (filters.hasIssue) params.set("has_issue", "true");
   if (filters.pathologist) params.set("pathologist", filters.pathologist);
   return params;

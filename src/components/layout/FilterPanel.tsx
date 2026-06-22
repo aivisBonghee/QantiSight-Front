@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useFilters } from "@/hooks/useFilters";
 import { PanelLeftClose } from "lucide-react";
-import type { StainCategory, OrganType, CaseStatus } from "@/types/case";
+import type { StainCategory, OrganType, CaseStatus, QcGrade } from "@/types/case";
 
 const STAINS: { value: StainCategory; label: string; color: string }[] = [
   { value: "HE", label: "H&E", color: "bg-violet-400" },
@@ -92,9 +92,9 @@ export function FilterPanel({ totalCount, onClose, onCollapse }: Props) {
 
   const {
     stainTypes, organs, statuses,
-    organMatch, stainMatch, controlTissue, qcGrade, hasIssue, pathologist,
+    organMatch, stainMatch, controlTissue, qcGrade, qcThresholds, hasIssue, pathologist,
     toggleStain, toggleOrgan, toggleStatus,
-    setOrganMatch, setStainMatch, setControlTissue, setQcGrade, toggleHasIssue,
+    setOrganMatch, setStainMatch, setControlTissue, setQcGrade, setQcThresholds, toggleHasIssue,
     setPathologist,
     reset,
   } = useFilters();
@@ -187,11 +187,36 @@ export function FilterPanel({ totalCount, onClose, onCollapse }: Props) {
               </div>
             </div>
             <div>
-              <div className="text-[9px] text-gray-400 mb-1">품질 등급</div>
-              <div className="flex flex-wrap gap-1.5">
-                <ToggleChip label="양호 80+" active={qcGrade === "good"} color="bg-emerald-600" onClick={() => setQcGrade("good")} />
-                <ToggleChip label="보통" active={qcGrade === "fair"} color="bg-amber-500" onClick={() => setQcGrade("fair")} />
-                <ToggleChip label="불량" active={qcGrade === "poor"} color="bg-red-500" onClick={() => setQcGrade("poor")} />
+              <div className="text-[9px] text-gray-400 mb-1">품질 기준</div>
+              <div className="flex flex-col gap-1">
+                {([
+                  { key: "pass" as const, label: "Pass", color: "#1a3a5c" },
+                  { key: "conditional" as const, label: "주의", color: "#FFCF0F" },
+                  { key: "rescan" as const, label: "재스캔", color: "#FF8C00" },
+                ] as const).map(({ key, label, color }) => (
+                  <div key={key} className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
+                    <span className="text-[10px] text-gray-600 w-10 shrink-0">{label}</span>
+                    <span className="text-[9px] text-gray-400 shrink-0">≥</span>
+                    <input
+                      type="number"
+                      value={qcThresholds[key]}
+                      onChange={(e) => {
+                        const v = parseInt(e.target.value);
+                        if (!isNaN(v) && v >= 0 && v <= 100) {
+                          setQcThresholds({ ...qcThresholds, [key]: v });
+                        }
+                      }}
+                      className="w-10 text-[10px] text-center border rounded px-1 py-0.5 focus:outline-none focus:ring-1 focus:ring-[#355C94]"
+                    />
+                  </div>
+                ))}
+              </div>
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                <ToggleChip label={`Pass ${qcThresholds.pass}+`} active={qcGrade === "pass"} color="bg-[#1a3a5c]" onClick={() => setQcGrade("pass" as QcGrade)} />
+                <ToggleChip label={`${qcThresholds.conditional}-${qcThresholds.pass - 1}`} active={qcGrade === "conditional"} color="bg-amber-500" onClick={() => setQcGrade("conditional" as QcGrade)} />
+                <ToggleChip label={`${qcThresholds.rescan}-${qcThresholds.conditional - 1}`} active={qcGrade === "rescan"} color="bg-orange-500" onClick={() => setQcGrade("rescan" as QcGrade)} />
+                <ToggleChip label={`<${qcThresholds.rescan}`} active={qcGrade === "fail"} color="bg-red-500" onClick={() => setQcGrade("fail" as QcGrade)} />
               </div>
             </div>
           </div>

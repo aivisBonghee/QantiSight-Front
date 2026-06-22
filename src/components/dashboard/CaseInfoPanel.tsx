@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import type { SlideCase } from "@/types/case";
-import { stainMatches, getQcVerdict } from "@/lib/qc-utils";
+import { stainMatches, getQcVerdict, useQcScore, displayStain } from "@/lib/qc-utils";
 import { addComment, updateComment, deleteComment, updateCase } from "@/lib/api-client";
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 
@@ -90,6 +90,7 @@ function EditSelect({ value, onChange, options }: {
 }
 
 export function CaseInfoPanel({ slideCase, onClose, onCommentAdded, onCaseUpdated }: Props) {
+  const qcS = useQcScore();
   const qc = slideCase.qcResult;
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [commentText, setCommentText] = useState("");
@@ -277,48 +278,64 @@ export function CaseInfoPanel({ slideCase, onClose, onCommentAdded, onCaseUpdate
 
           {/* Row 2: QC info */}
           <div className="grid grid-cols-5 gap-x-6 gap-y-1.5 pt-2 pb-2 border-b border-gray-100">
-            <Field
-              label="장기"
-              value={
-                qc ? (
-                  <div className="flex items-center gap-1.5">
-                    <MatchText match={qc.organMatch} label={qc.detectedOrgan} />
-                    <span className="text-[9px] text-gray-400">의뢰: {slideCase.organ || "-"}</span>
-                  </div>
-                ) : (
-                  slideCase.organ || "-"
-                )
-              }
-            />
-            <Field
-              label="염색"
-              value={
-                qc ? (
-                  <div className="flex items-center gap-1.5">
-                    <MatchText
-                      match={stainMatches(qc.stainClassification, slideCase.stainType)}
-                      label={qc.stainClassification}
-                    />
-                    <span className="text-[9px] text-gray-400">의뢰: {slideCase.stainType || "-"}</span>
-                  </div>
-                ) : (
-                  slideCase.stainType || "-"
-                )
-              }
-            />
+            {isEditing ? (
+              <div>
+                <div className="text-[9px] text-gray-500 font-medium mb-0.5">장기</div>
+                <EditSelect value={editFields.organ} onChange={(v) => setEditFields((p) => ({ ...p, organ: v }))} options={[
+                  { value: "", label: "-" },
+                  { value: "Breast", label: "Breast" }, { value: "Stomach", label: "Stomach" },
+                  { value: "Bladder", label: "Bladder" }, { value: "Thyroid", label: "Thyroid" },
+                  { value: "Colon", label: "Colon" }, { value: "Brain", label: "Brain" },
+                ]} />
+              </div>
+            ) : (
+              <Field
+                label="장기"
+                value={
+                  qc ? (
+                    <div className="flex items-center gap-1.5">
+                      <MatchText match={qc.organMatch} label={qc.detectedOrgan} />
+                      <span className="text-[9px] text-gray-400">의뢰: {slideCase.organ || "-"}</span>
+                    </div>
+                  ) : (
+                    slideCase.organ || "-"
+                  )
+                }
+              />
+            )}
+            {isEditing ? (
+              <div>
+                <div className="text-[9px] text-gray-500 font-medium mb-0.5">염색</div>
+                <EditSelect value={editFields.stainType} onChange={(v) => setEditFields((p) => ({ ...p, stainType: v }))} options={[
+                  { value: "", label: "-" },
+                  { value: "HE", label: "HE" },
+                  { value: "IHC-membrane", label: "IHC-membrane" },
+                  { value: "IHC-nuclear", label: "IHC-nuclear" },
+                ]} />
+              </div>
+            ) : (
+              <Field
+                label="염색"
+                value={
+                  qc ? (
+                    <div className="flex items-center gap-1.5">
+                      <MatchText
+                        match={stainMatches(qc.stainClassification, slideCase.stainType)}
+                        label={qc.stainClassification}
+                      />
+                      <span className="text-[9px] text-gray-400">의뢰: {displayStain(slideCase.stainType)}</span>
+                    </div>
+                  ) : (
+                    displayStain(slideCase.stainType)
+                  )
+                }
+              />
+            )}
             <Field
               label="QC 점수"
               value={
                 qc?.overallQcScore ? (
-                  <span
-                    className={`font-extrabold ${
-                      qc.overallQcScore >= 80
-                        ? "text-emerald-600"
-                        : qc.overallQcScore >= 60
-                        ? "text-amber-600"
-                        : "text-red-600"
-                    }`}
-                  >
+                  <span className={`font-extrabold ${qcS.getTextClass(qc.overallQcScore)}`}>
                     {qc.overallQcScore}
                   </span>
                 ) : (
@@ -471,11 +488,11 @@ export function CaseInfoPanel({ slideCase, onClose, onCommentAdded, onCaseUpdate
         {/* Right: Thumbnail */}
         <div className="shrink-0 w-[200px] flex flex-col gap-2">
           {slideCase.thumbnailPath ? (
-            <div className="relative w-full rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
+            <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
               <img
                 src={slideCase.thumbnailPath}
                 alt={slideCase.slideId}
-                className="w-full h-auto block"
+                className="w-full h-full object-contain"
               />
               {showHeatmap && qc?.heatmapPath && (
                 <img
@@ -527,14 +544,7 @@ export function CaseInfoPanel({ slideCase, onClose, onCommentAdded, onCaseUpdate
               {qc?.overallQcScore ? (
                 <div
                   className="absolute top-1.5 right-1.5 w-9 h-9 rounded-lg flex flex-col items-center justify-center shadow-md"
-                  style={{
-                    backgroundColor:
-                      qc.overallQcScore >= 80
-                        ? "#27BE69"
-                        : qc.overallQcScore >= 60
-                        ? "#FFCF0F"
-                        : "#FF4242",
-                  }}
+                  style={{ backgroundColor: qcS.getColor(qc.overallQcScore) }}
                 >
                   <span className="text-white text-[11px] font-extrabold">{qc.overallQcScore}</span>
                   <span className="text-white/70 text-[5px] font-medium">QC</span>

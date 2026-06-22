@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { SlideCase, CaseStatus } from "@/types/case";
-import { stainMatches, getQcVerdict } from "@/lib/qc-utils";
+import { stainMatches, getQcVerdict, useQcScore, displayStain } from "@/lib/qc-utils";
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 
 interface Props {
@@ -58,6 +58,7 @@ const STATUS: Record<CaseStatus, { label: string; dot: string; badge: string }> 
 };
 
 export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect, onDelete, selectedId, isLoading, sortBy, sortDir, onSort }: Props) {
+  const qcS = useQcScore();
   const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
   const allChecked = cases.length > 0 && cases.every((c) => checkedIds.has(c.id));
   const someChecked = checkedIds.size > 0;
@@ -179,11 +180,11 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
     if (!c.qcResult) return <span className="text-gray-400">-</span>;
     const score = c.qcResult.overallQcScore;
     if (score == null) return <span className="text-gray-400">-</span>;
-    const isLow = score < 60;
     return (
-      <span className={`inline-flex items-center justify-center w-9 h-7 rounded-lg border-2 text-xs font-extrabold ${
-        isLow ? "border-red-500 text-red-600" : "border-gray-300 text-gray-900"
-      }`}>
+      <span
+        className="inline-flex items-center justify-center w-9 h-7 rounded-lg border-2 text-xs font-extrabold"
+        style={{ borderColor: qcS.getColor(score), color: qcS.getColor(score) }}
+      >
         {score}
       </span>
     );
@@ -292,7 +293,7 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
                   <TableCell className="py-1.5 whitespace-nowrap">
                     {c.stainType ? (
                       <span className="inline-flex items-center px-2 py-0.5 rounded bg-[#e8edf5] text-[#1a3a5c] text-[11px] font-bold">
-                        {c.stainType}
+                        {displayStain(c.stainType)}
                       </span>
                     ) : (
                       <span className="text-gray-400">-</span>

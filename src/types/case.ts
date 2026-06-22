@@ -93,9 +93,15 @@ export interface QcResult {
   analyzedAt: string;
 }
 
-export type QcGrade = "good" | "fair" | "poor";
+export type QcGrade = "pass" | "conditional" | "rescan" | "fail";
 export type OrganMatchFilter = "match" | "mismatch";
 export type ControlTissueFilter = "present" | "missing";
+
+export interface QcThresholds {
+  pass: number;
+  conditional: number;
+  rescan: number;
+}
 
 export interface CaseFilters {
   stainTypes: StainCategory[];
@@ -107,6 +113,7 @@ export interface CaseFilters {
   stainMatch: OrganMatchFilter | null;
   controlTissue: ControlTissueFilter | null;
   qcGrade: QcGrade | null;
+  qcThresholds: QcThresholds;
   serverLocation: ServerLocation | null;
   hasIssue: boolean;
   pathologist: string | null;

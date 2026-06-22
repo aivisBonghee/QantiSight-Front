@@ -1,6 +1,61 @@
 import type { SlideCase } from "@/types/case";
+import { useFilters } from "@/hooks/useFilters";
 
 const IHC_STAINS = ["IHC-HER2", "IHC-ER", "IHC-PR", "IHC-KI67"];
+
+export type QcThresholds = { pass: number; conditional: number; rescan: number };
+
+export const QC_THRESHOLDS: QcThresholds = { pass: 85, conditional: 70, rescan: 50 };
+
+export type QcScoreGrade = "pass" | "conditional" | "rescan" | "fail";
+
+export function getQcScoreGrade(score: number | null | undefined, t: QcThresholds = QC_THRESHOLDS): QcScoreGrade {
+  if (score == null) return "fail";
+  if (score >= t.pass) return "pass";
+  if (score >= t.conditional) return "conditional";
+  if (score >= t.rescan) return "rescan";
+  return "fail";
+}
+
+export function getQcScoreColor(score: number | null | undefined, t: QcThresholds = QC_THRESHOLDS): string {
+  switch (getQcScoreGrade(score, t)) {
+    case "pass": return "#1a3a5c";
+    case "conditional": return "#FFCF0F";
+    case "rescan": return "#FF8C00";
+    case "fail": return "#FF4242";
+  }
+}
+
+export function getQcScoreTextClass(score: number | null | undefined, t: QcThresholds = QC_THRESHOLDS): string {
+  switch (getQcScoreGrade(score, t)) {
+    case "pass": return "text-gray-900";
+    case "conditional": return "text-yellow-600";
+    case "rescan": return "text-orange-500";
+    case "fail": return "text-red-600";
+  }
+}
+
+export function useQcScore() {
+  const t = useFilters((s) => s.qcThresholds);
+  return {
+    getGrade: (score: number | null | undefined) => getQcScoreGrade(score, t),
+    getColor: (score: number | null | undefined) => getQcScoreColor(score, t),
+    getTextClass: (score: number | null | undefined) => getQcScoreTextClass(score, t),
+    thresholds: t,
+  };
+}
+
+const STAIN_DISPLAY_MAP: Record<string, string> = {
+  "IHC-HER2": "IHC-membrane",
+  "IHC-ER": "IHC-nuclear",
+  "IHC-PR": "IHC-nuclear",
+  "IHC-KI67": "IHC-nuclear",
+};
+
+export function displayStain(stain: string | null | undefined): string {
+  if (!stain) return "-";
+  return STAIN_DISPLAY_MAP[stain] ?? stain;
+}
 
 export function stainMatches(classification: string | undefined, caseStain: string): boolean {
   if (!classification || classification === "uncertain") return false;

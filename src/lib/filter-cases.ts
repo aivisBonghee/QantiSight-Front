@@ -35,9 +35,11 @@ export function filterCases(cases: SlideCase[], filters: CaseFilters): SlideCase
 
     if (filters.qcGrade && c.qcResult) {
       const score = c.qcResult.overallQcScore ?? 0;
-      if (filters.qcGrade === "good" && score < 80) return false;
-      if (filters.qcGrade === "fair" && (score < 60 || score >= 80)) return false;
-      if (filters.qcGrade === "poor" && score >= 60) return false;
+      const t = filters.qcThresholds;
+      if (filters.qcGrade === "pass" && score < t.pass) return false;
+      if (filters.qcGrade === "conditional" && (score < t.conditional || score >= t.pass)) return false;
+      if (filters.qcGrade === "rescan" && (score < t.rescan || score >= t.conditional)) return false;
+      if (filters.qcGrade === "fail" && score >= t.rescan) return false;
     }
     if (filters.qcGrade && !c.qcResult) return false;
 
