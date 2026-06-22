@@ -200,11 +200,19 @@ export function FilterPanel({ totalCount, onClose, onCollapse }: Props) {
                     <span className="text-[9px] text-gray-400 shrink-0">≥</span>
                     <input
                       type="number"
+                      min={0}
+                      max={100}
                       value={qcThresholds[key]}
                       onChange={(e) => {
                         const v = parseInt(e.target.value);
-                        if (!isNaN(v) && v >= 0 && v <= 100) {
+                        if (!isNaN(v)) {
                           setQcThresholds({ ...qcThresholds, [key]: v });
+                        }
+                      }}
+                      onBlur={() => {
+                        const clamped = Math.max(0, Math.min(100, qcThresholds[key]));
+                        if (clamped !== qcThresholds[key]) {
+                          setQcThresholds({ ...qcThresholds, [key]: clamped });
                         }
                       }}
                       className="w-10 text-[10px] text-center border rounded px-1 py-0.5 focus:outline-none focus:ring-1 focus:ring-[#355C94]"
