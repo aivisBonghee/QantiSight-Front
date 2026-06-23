@@ -65,25 +65,40 @@ export function stainMatches(classification: string | undefined, caseStain: stri
   return classification === caseStain;
 }
 
-export type QcVerdict = "pass" | "insufficient" | "fail";
+export type QcVerdict = "pass" | "caution" | "fail" | "critical" | "insufficient";
 
-export function getQcVerdict(c: SlideCase): QcVerdict {
+function _isIHC(stain: string): boolean {
+  return IHC_STAINS.includes(stain) || stain === "IHC-membrane" || stain === "IHC-nuclear";
+}
+
+export function getQcVerdict(c: SlideCase, t: QcThresholds = QC_THRESHOLDS): QcVerdict {
   if (!c.qcResult) return "fail";
   const qc = c.qcResult;
 
   const hasOrgan = !!c.organ?.trim();
   const hasStain = !!c.stainType?.trim();
-
   if (!hasOrgan || !hasStain) return "insufficient";
 
+  // Gate 1: Consistency — organ/stain match, IHC control tissue
   if (!qc.organMatch) return "fail";
   if (!stainMatches(qc.stainClassification, c.stainType)) return "fail";
-  if (qc.overallQcScore != null && qc.overallQcScore <= 0) return "fail";
-
-  const isIHC = IHC_STAINS.includes(c.stainType);
-  if (isIHC && qc.controlTissueStatus && qc.controlTissueStatus !== "present" && qc.controlTissueStatus !== "n/a") {
+  if (_isIHC(c.stainType) && qc.controlTissueStatus && qc.controlTissueStatus !== "present" && qc.controlTissueStatus !== "n/a") {
     return "fail";
   }
 
-  return "pass";
+  // Gate 2: Adequacy — cell count ≥ 2,000
+  if (qc.lesionDetail) {
+    try {
+      const detail = JSON.parse(qc.lesionDetail);
+      const total = (detail.n_tumor_cells ?? 0) + (detail.n_non_tumor_cells ?? 0);
+      if (total > 0 && total < 2000) return "fail";
+    } catch {}
+  }
+
+  // Gate 3: Severity — QC score
+  if (qc.overallQcScore == null) return "fail";
+  if (qc.overallQcScore >= t.pass) return "pass";
+  if (qc.overallQcScore >= t.conditional) return "caution";
+  if (qc.overallQcScore >= t.rescan) return "fail";
+  return "critical";
 }

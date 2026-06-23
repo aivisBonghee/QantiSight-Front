@@ -131,7 +131,7 @@ export function CaseInfoPanel({ slideCase, onClose, onCommentAdded, onCaseUpdate
     }
   };
 
-  const verdict = getQcVerdict(slideCase);
+  const verdict = getQcVerdict(slideCase, qcS.thresholds);
   const missingFields: string[] = [];
   if (!slideCase.organ?.trim()) missingFields.push("장기");
   if (!slideCase.stainType?.trim()) missingFields.push("염색");
@@ -152,11 +152,16 @@ export function CaseInfoPanel({ slideCase, onClose, onCommentAdded, onCaseUpdate
           <span
             className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
               verdict === "pass" ? "bg-emerald-400/20 text-emerald-200"
+                : verdict === "caution" ? "bg-amber-400/20 text-amber-200"
                 : verdict === "insufficient" ? "bg-amber-400/20 text-amber-200"
+                : verdict === "critical" ? "bg-red-700/30 text-red-200"
                 : "bg-red-500/30 text-red-300"
             }`}
           >
-            {verdict === "pass" ? "적합" : verdict === "insufficient" ? (
+            {verdict === "pass" ? "적합"
+              : verdict === "caution" ? "주의"
+              : verdict === "critical" ? "심각"
+              : verdict === "insufficient" ? (
               <span className="inline-flex items-center gap-0.5">
                 불충분
                 <TooltipProvider>

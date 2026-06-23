@@ -341,12 +341,17 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
                   </TableCell>
                   <TableCell className="py-1.5 whitespace-nowrap">
                     {(() => {
-                      const v = getQcVerdict(c);
+                      if (!c.qcResult) return <span className="text-gray-400">-</span>;
+                      const v = getQcVerdict(c, qcS.thresholds);
                       const missing: string[] = [];
                       if (!c.organ?.trim()) missing.push("장기");
                       if (!c.stainType?.trim()) missing.push("염색");
                       return v === "pass" ? (
                         <span className="text-emerald-600 font-bold text-[12px]">적합</span>
+                      ) : v === "caution" ? (
+                        <span className="text-amber-500 font-bold text-[12px]">주의</span>
+                      ) : v === "critical" ? (
+                        <span className="text-red-800 font-bold text-[12px]">심각</span>
                       ) : v === "insufficient" ? (
                         <span className="text-amber-500 font-bold text-[12px] inline-flex items-center gap-0.5">
                           불충분
@@ -357,8 +362,6 @@ export function CaseTable({ cases, total, page, pageSize, onPageChange, onSelect
                             </Tooltip>
                           </TooltipProvider>
                         </span>
-                      ) : !c.qcResult ? (
-                        <span className="text-gray-400">-</span>
                       ) : (
                         <span className="text-red-600 font-bold text-[12px]">부적합</span>
                       );
